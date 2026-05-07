@@ -1,20 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Bow, Sparkle, Heart, Star, FloatingDeco, GiftBox } from '@/components/decorations'
 
 const C = 'var(--font-serif)'
 const B = 'var(--font-sans)'
 const S = 'var(--font-script)'
 
+const ERROR_MESSAGES: Record<string, string> = {
+  link_expired: 'Ten link już wygasł lub był użyty. Poproś o nowy link poniżej.',
+  invalid_link: 'Nieprawidłowy link logowania. Spróbuj zalogować się ponownie.',
+}
+
 export default function LoginPage() {
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [focused, setFocused] = useState(false)
+
+  useEffect(() => {
+    const err = searchParams.get('error')
+    if (err && ERROR_MESSAGES[err]) setError(ERROR_MESSAGES[err])
+  }, [searchParams])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
