@@ -4,10 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { WishlistItem, OCCASIONS, PRIORITY_LABELS } from '@/types'
 import { formatPrice } from '@/lib/utils'
-import { Gift } from 'lucide-react'
 import ReserveButton from './ReserveButton'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { GiftBox, Bow, Sparkle, FloatingDeco, SquigglyUnderline } from '@/components/decorations'
+
+const C = 'var(--font-serif)'
+const B = 'var(--font-sans)'
+const S = 'var(--font-script)'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -18,6 +22,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${data.title} — Lista życzeń`,
     description: data.description ?? `Lista życzeń: ${data.title}`,
   }
+}
+
+const PRIORITY_COLORS: Record<number, { bg: string; dot: string }> = {
+  1: { bg: 'var(--c3-soft)', dot: 'var(--c3)' },
+  2: { bg: 'var(--c2-soft)', dot: 'var(--c2)' },
+  3: { bg: 'var(--c1-soft)', dot: 'var(--c1)' },
 }
 
 export default async function PublicWishlistPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -38,105 +48,157 @@ export default async function PublicWishlistPage({ params }: { params: Promise<{
   )
 
   const occasionLabel = OCCASIONS.find(o => o.value === wishlist.occasion)?.label
-
   const reservedCount = items.filter(i => i.is_reserved).length
+  const progress = items.length > 0 ? Math.round((reservedCount / items.length) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-rose-100 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 font-bold text-rose-500">
-            <Gift className="w-5 h-5" />
-            Wishlist
-          </Link>
-          <span className="text-xs text-slate-400">{reservedCount}/{items.length} zarezerwowanych</span>
-        </div>
-      </div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      {/* Sticky nav */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'rgba(250,246,238,.88)', backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)', borderBottom: '1px solid var(--line)',
+        padding: '0 32px', height: 56,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 2 }}>
+          <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 22, color: 'var(--ink)' }}>wisz</span>
+          <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 22, color: 'var(--c1)' }}>list</span>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--c1)', display: 'inline-block', marginBottom: 4, marginLeft: 2 }} />
+        </Link>
+        <span style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>
+          {reservedCount}/{items.length} zarezerwowanych
+        </span>
+      </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-10">
-        {/* List header */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Gift className="w-8 h-8 text-rose-500" />
-          </div>
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 24px 80px' }}>
+
+        {/* Hero header */}
+        <div style={{ textAlign: 'center', marginBottom: 40, position: 'relative' }}>
+          <FloatingDeco top={-20} right={0} rot={12} delay={0.3}>
+            <Bow size={80} color="var(--c2)" />
+          </FloatingDeco>
+          <FloatingDeco bottom={0} left={-10} rot={-10} delay={1}>
+            <Sparkle size={22} color="var(--c4)" />
+          </FloatingDeco>
+
+          <GiftBox size={100} style={{ margin: '0 auto 20px' }} />
+
           {occasionLabel && (
-            <span className="text-xs font-medium text-rose-500 bg-rose-50 px-3 py-1 rounded-full mb-3 inline-block">
-              {occasionLabel}
-            </span>
+            <span className="chip" style={{ marginBottom: 14, display: 'inline-flex' }}>{occasionLabel}</span>
           )}
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">{wishlist.title}</h1>
+          <h1 style={{
+            fontFamily: C, fontStyle: 'italic', fontWeight: 400,
+            fontSize: 'clamp(36px, 5vw, 52px)', color: 'var(--ink)', marginBottom: 10, lineHeight: 1.08,
+            position: 'relative', display: 'inline-block',
+          }}>
+            {wishlist.title}
+            <SquigglyUnderline width={200} color="var(--c1)" style={{ position: 'absolute', bottom: -8, left: '50%', transform: 'translateX(-50%)' }} />
+          </h1>
           {wishlist.description && (
-            <p className="text-slate-500 max-w-md mx-auto">{wishlist.description}</p>
+            <p style={{ fontFamily: B, color: 'var(--ink-2)', maxWidth: 420, margin: '16px auto 0', fontSize: 15, lineHeight: 1.65 }}>{wishlist.description}</p>
+          )}
+
+          {/* Progress */}
+          {items.length > 0 && (
+            <div style={{ marginTop: 24, maxWidth: 340, margin: '24px auto 0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--ink-2)', fontFamily: B, marginBottom: 6 }}>
+                <span>Zarezerwowane</span>
+                <span className="mono">{reservedCount}/{items.length} · {progress}%</span>
+              </div>
+              <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-2)', overflow: 'hidden' }}>
+                <div style={{ width: `${progress}%`, height: '100%', background: 'var(--c1)', borderRadius: 999, transition: 'width 1s var(--spring)' }} />
+              </div>
+            </div>
           )}
         </div>
 
         {/* Info banner */}
-        <div className="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4 mb-8 text-sm text-amber-700">
-          Kliknij <strong>Zarezerwuj</strong> przy produkcie, który chcesz podarować — właściciel listy
-          nie zobaczy kto co zarezerwował. Prezent pozostanie niespodzianką!
+        <div style={{
+          padding: '14px 18px', borderRadius: 16, marginBottom: 28,
+          background: 'var(--c4-soft)', boxShadow: 'inset 0 0 0 1px rgba(31,26,20,.08)',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+        }}>
+          <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1.3 }}>✦</span>
+          <p style={{ fontFamily: B, fontSize: 13, color: 'var(--ink-2)', margin: 0, lineHeight: 1.6 }}>
+            Kliknij <strong style={{ color: 'var(--ink)' }}>Rezerwuję</strong> przy produkcie, który chcesz podarować — właściciel listy nie zobaczy kto co zarezerwował. Prezent pozostanie niespodzianką!
+          </p>
         </div>
 
         {/* Items */}
-        <div className="space-y-3">
-          {items.map(item => (
-            <div
-              key={item.id}
-              className={`bg-white rounded-2xl border border-slate-100 p-5 shadow-sm ${item.is_reserved ? 'opacity-60' : ''}`}
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                      {PRIORITY_LABELS[item.priority]}
-                    </span>
-                    {item.is_reserved && (
-                      <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
-                        Już zarezerwowane
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-slate-900 text-lg leading-tight">{item.title}</h3>
-                  {item.notes && (
-                    <p className="text-sm text-slate-500 mt-1">{item.notes}</p>
-                  )}
-                  <div className="flex items-center gap-3 mt-2">
-                    {item.price && (
-                      <span className="font-bold text-rose-500 text-lg">
-                        {formatPrice(item.price, item.currency)}
-                      </span>
-                    )}
-                    {item.url && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-slate-400 hover:text-rose-500 underline underline-offset-2 transition-colors"
-                      >
-                        Zobacz produkt
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="shrink-0">
-                  <ReserveButton item={item} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {items.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 20px' }}>
+            <GiftBox size={80} style={{ margin: '0 auto 16px', opacity: .4 }} />
+            <p style={{ fontFamily: B, color: 'var(--ink-2)' }}>Lista jest jeszcze pusta.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {items.map((item, i) => {
+              const pc = PRIORITY_COLORS[item.priority] ?? PRIORITY_COLORS[2]
+              return (
+                <div key={item.id} style={{
+                  background: 'var(--paper)', borderRadius: 20,
+                  boxShadow: 'var(--shadow-1)', padding: '18px 20px',
+                  opacity: item.is_reserved ? 0.68 : 1,
+                  animation: `pop-in .5s var(--spring) ${i * 0.05}s both`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                    {/* Priority dot */}
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: pc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: pc.dot }} />
+                    </div>
 
-        {items.length === 0 && (
-          <div className="text-center py-16 text-slate-400">
-            <Gift className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Lista jest jeszcze pusta.</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 6 }}>
+                        <span className="chip" style={{ background: pc.bg, boxShadow: 'none', fontSize: 11, padding: '3px 9px' }}>
+                          {PRIORITY_LABELS[item.priority]}
+                        </span>
+                        {item.is_reserved && (
+                          <span className="chip" style={{ background: 'var(--c3-soft)', boxShadow: 'none', fontSize: 11, padding: '3px 9px' }}>
+                            ✓ Zarezerwowane
+                          </span>
+                        )}
+                      </div>
+                      <h3 style={{ fontFamily: B, fontWeight: 600, fontSize: 16, color: 'var(--ink)', margin: '0 0 4px', lineHeight: 1.3 }}>{item.title}</h3>
+                      {item.notes && (
+                        <p style={{ fontFamily: B, fontSize: 13, color: 'var(--ink-2)', margin: '0 0 8px' }}>{item.notes}</p>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                        {item.price && (
+                          <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 20, color: 'var(--c1)', fontWeight: 400 }}>
+                            {formatPrice(item.price, item.currency)}
+                          </span>
+                        )}
+                        {item.url && (
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, transition: 'color .15s' }}
+                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c1)')}
+                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--ink-2)')}
+                          >
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                            Zobacz produkt
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ flexShrink: 0 }}>
+                      <ReserveButton item={item} />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
 
-        <div className="text-center mt-10 text-slate-400 text-xs">
-          Stwórz własną listę na{' '}
-          <Link href="/" className="text-rose-400 hover:text-rose-500 underline">
-            wishlist.app
+        {/* Footer */}
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <p style={{ fontFamily: S, fontSize: 20, color: 'var(--ink-2)', marginBottom: 6 }}>chcesz własną listę?</p>
+          <Link href="/" style={{
+            fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16,
+            color: 'var(--c1)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6,
+          }}>
+            Stwórz na wiszlist →
           </Link>
         </div>
       </div>

@@ -1,18 +1,24 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google'
+import { Instrument_Serif, Bricolage_Grotesque, Caveat } from 'next/font/google'
 import './globals.css'
 
-const cormorant = Cormorant_Garamond({
+const serif = Instrument_Serif({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['400'],
   style: ['normal', 'italic'],
-  variable: '--font-cormorant',
+  variable: '--font-serif',
 })
 
-const jakarta = Plus_Jakarta_Sans({
+const sans = Bricolage_Grotesque({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-jakarta',
+  variable: '--font-sans',
+})
+
+const script = Caveat({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-script',
 })
 
 export const metadata: Metadata = {
@@ -26,8 +32,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" className={`h-full ${cormorant.variable} ${jakarta.variable}`}>
-      <body className="min-h-full antialiased" style={{ fontFamily: 'var(--font-jakarta), system-ui, sans-serif' }}>
+    <html lang="pl" className={`h-full ${serif.variable} ${sans.variable} ${script.variable}`}>
+      <body className="min-h-full">
         {children}
       </body>
     </html>

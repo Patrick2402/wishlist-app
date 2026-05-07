@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { OCCASIONS } from '@/types'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
+
+const C = 'var(--font-serif)'
+const B = 'var(--font-sans)'
 
 function generateSlug(title: string): string {
   return title
@@ -13,9 +15,13 @@ function generateSlug(title: string): string {
     .replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
     .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o')
     .replace(/ś/g, 's').replace(/ź/g, 'z').replace(/ż/g, 'z')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     + '-' + Math.random().toString(36).slice(2, 7)
+}
+
+const OCCASION_EMOJIS: Record<string, string> = {
+  birthday: '🎂', christmas: '🎄', wedding: '💍', nameday: '🌸',
+  anniversary: '💐', baby: '🍼', graduation: '🎓', other: '🎁',
 }
 
 export default function NewWishlistPage() {
@@ -39,76 +45,82 @@ export default function NewWishlistPage() {
     const { data, error } = await supabase
       .from('wishlists')
       .insert({ title, description: description || null, occasion: occasion || null, slug, user_id: user.id })
-      .select()
-      .single()
+      .select().single()
 
-    if (error) {
-      setError('Coś poszło nie tak. Spróbuj ponownie.')
-      setLoading(false)
-      return
-    }
-
+    if (error) { setError('Coś poszło nie tak. Spróbuj ponownie.'); setLoading(false); return }
     router.push(`/dashboard/${data.id}`)
   }
 
   return (
-    <div className="max-w-lg">
-      <Link href="/dashboard" className="flex items-center gap-1 text-slate-500 hover:text-slate-700 text-sm mb-6 transition-colors">
-        <ChevronLeft className="w-4 h-4" />
+    <div style={{ padding: '40px 48px', maxWidth: 600 }}>
+      <Link href="/dashboard" style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13,
+        color: 'var(--ink-2)', textDecoration: 'none', fontFamily: B, fontWeight: 500,
+        marginBottom: 32, transition: 'color .15s',
+      }}
+      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--ink)')}
+      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--ink-2)')}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Wróć do list
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Nowa lista życzeń</h1>
-      <p className="text-slate-500 text-sm mb-8">Wypełnij podstawowe informacje. Produkty dodasz w następnym kroku.</p>
+      <div style={{ marginBottom: 32 }}>
+        <p style={{ fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--c1)', marginBottom: 8 }}>Nowa lista</p>
+        <h1 className="display" style={{ fontSize: 'clamp(36px, 4vw, 52px)', marginBottom: 8 }}>
+          Dodaj <em>okazję</em>
+        </h1>
+        <p style={{ fontFamily: B, color: 'var(--ink-2)', fontSize: 14, lineHeight: 1.6 }}>
+          Wypełnij podstawowe informacje. Produkty dodasz w następnym kroku.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
+      <form onSubmit={handleSubmit} style={{ background: 'var(--paper)', borderRadius: 24, padding: '28px 24px', boxShadow: 'var(--shadow-1)', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Occasion picker */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Nazwa listy <span className="text-red-400">*</span>
+          <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 12 }}>Okazja</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <button type="button" onClick={() => setOccasion('')} className="chip" data-active={!occasion ? '1' : '0'}>🎁 Ogólna</button>
+            {OCCASIONS.map(o => (
+              <button key={o.value} type="button" onClick={() => setOccasion(o.value)} className="chip" data-active={occasion === o.value ? '1' : '0'}>
+                {OCCASION_EMOJIS[o.value] ?? '🎁'} {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Title */}
+        <div>
+          <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 8 }}>
+            Nazwa listy <span style={{ color: 'var(--c1)' }}>*</span>
           </label>
           <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="np. Urodziny Patryka 2025"
-            required
-            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition"
+            type="text" value={title} onChange={e => setTitle(e.target.value)}
+            placeholder={`np. ${OCCASION_EMOJIS[occasion] ?? '🎁'} Urodziny Patryka 2025`}
+            required className="field" style={{ fontSize: 15 }}
           />
         </div>
 
+        {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Opis (opcjonalnie)</label>
+          <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 8 }}>
+            Opis <span style={{ color: 'var(--ink-2)', fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 12 }}>(opcjonalnie)</span>
+          </label>
           <textarea
-            value={description}
-            onChange={e => setDescription(e.target.value)}
+            value={description} onChange={e => setDescription(e.target.value)}
             placeholder="Krótki opis dla osób, które odwiedzą Twoją listę..."
-            rows={3}
-            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition resize-none"
+            rows={3} className="field" style={{ fontSize: 14, resize: 'vertical', lineHeight: 1.6 }}
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Okazja (opcjonalnie)</label>
-          <select
-            value={occasion}
-            onChange={e => setOccasion(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition bg-white"
-          >
-            <option value="">Wybierz okazję...</option>
-            {OCCASIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
+        {error && (
+          <div style={{ background: 'var(--c1-soft)', border: '1px solid rgba(224,122,95,.25)', color: 'var(--ink)', fontSize: 13, padding: '10px 14px', borderRadius: 12, fontFamily: B }}>
+            {error}
+          </div>
+        )}
 
-        {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={loading || !title.trim()}
-          className="w-full bg-rose-500 hover:bg-rose-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
-        >
-          {loading ? 'Tworzenie...' : 'Stwórz listę i dodaj produkty'}
+        <button type="submit" disabled={loading || !title.trim()} className="btn btn-pop" style={{ justifyContent: 'center', fontSize: 15, padding: 15 }}>
+          {loading ? 'Tworzenie...' : 'Stwórz listę i dodaj produkty →'}
         </button>
       </form>
     </div>

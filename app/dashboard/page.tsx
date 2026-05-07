@@ -3,7 +3,25 @@ export const runtime = 'edge'
 import { createClient } from '@/lib/supabase/server'
 import { Wishlist, OCCASIONS } from '@/types'
 import Link from 'next/link'
-import { Gift, ExternalLink, ChevronRight } from 'lucide-react'
+import { GiftBox, SquigglyUnderline, Bow, FloatingDeco, Sparkle } from '@/components/decorations'
+import ListCardClient from '@/components/ListCardClient'
+
+const C = 'var(--font-serif)'
+const B = 'var(--font-sans)'
+const S = 'var(--font-script)'
+
+const ACCENT_CYCLE = [
+  { c: 'var(--c1)', soft: 'var(--c1-soft)' },
+  { c: 'var(--c3)', soft: 'var(--c3-soft)' },
+  { c: 'var(--c5)', soft: 'var(--c5-soft)' },
+  { c: 'var(--c2)', soft: 'var(--c2-soft)' },
+  { c: 'var(--c4)', soft: 'var(--c4-soft)' },
+]
+
+const OCCASION_EMOJI: Record<string, string> = {
+  birthday: '🎂', christmas: '🎄', wedding: '💍', nameday: '🌸',
+  anniversary: '💐', baby: '🍼', graduation: '🎓', other: '🎁',
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -18,66 +36,126 @@ export default async function DashboardPage() {
   const occasionLabel = (val: string | null) =>
     OCCASIONS.find(o => o.value === val)?.label ?? 'Ogólna lista'
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Moje listy</h1>
-          <p className="text-slate-500 text-sm mt-1">Zarządzaj swoimi listami życzeń</p>
-        </div>
-      </div>
+  const lists = (wishlists ?? []) as (Wishlist & { wishlist_items: { count: number }[] })[]
 
-      {!wishlists || wishlists.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-slate-100">
-          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Gift className="w-8 h-8 text-rose-400" />
+  return (
+    <div style={{ padding: '0 0 80px' }}>
+      {/* Header */}
+      <header style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--ink-2)', marginBottom: 12, fontFamily: B, textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>
+            <span style={{ width: 18, height: 1, background: 'var(--ink-2)' }} />
+            Twoje listy
           </div>
-          <h2 className="text-xl font-semibold text-slate-800 mb-2">Brak list życzeń</h2>
-          <p className="text-slate-500 mb-6 text-sm">Stwórz pierwszą listę i zacznij zbierać marzenia!</p>
-          <Link
-            href="/dashboard/new"
-            className="bg-rose-500 hover:bg-rose-600 text-white font-medium px-6 py-3 rounded-full transition-colors inline-block"
-          >
-            Stwórz pierwszą listę
-          </Link>
+          <h1 className="display" style={{ margin: 0, fontSize: 'clamp(40px, 5vw, 60px)', position: 'relative' }}>
+            Moje <em style={{ color: 'var(--c1)' }}>listy</em>.
+            <SquigglyUnderline width={120} color="var(--c1)" style={{ position: 'absolute', bottom: -10, left: 108 }} />
+          </h1>
+        </div>
+        <Link href="/dashboard/new" className="btn btn-pop" style={{ fontSize: 14, padding: '12px 20px', whiteSpace: 'nowrap' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Nowa lista
+        </Link>
+      </header>
+
+      {lists.length === 0 ? (
+        /* Empty state */
+        <div style={{ padding: '0 48px' }}>
+          <div style={{
+            textAlign: 'center', padding: '64px 32px', borderRadius: 28,
+            background: 'var(--paper)', boxShadow: 'var(--shadow-1)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <FloatingDeco top={-20} right={60} rot={12} delay={0}>
+              <Bow size={90} color="var(--c2)" />
+            </FloatingDeco>
+            <FloatingDeco bottom={-10} left={40} rot={-8} delay={1}>
+              <Sparkle size={24} color="var(--c4)" />
+            </FloatingDeco>
+            <GiftBox size={120} style={{ margin: '0 auto 24px' }} />
+            <h2 style={{ fontFamily: C, fontStyle: 'italic', fontSize: 36, color: 'var(--ink)', marginBottom: 10 }}>
+              Brak list życzeń
+            </h2>
+            <p style={{ fontFamily: B, color: 'var(--ink-2)', marginBottom: 28, fontSize: 15 }}>
+              Stwórz pierwszą listę i zacznij zbierać marzenia!
+            </p>
+            <Link href="/dashboard/new" className="btn btn-pop" style={{ fontSize: 15, padding: '14px 28px' }}>
+              Stwórz pierwszą listę ✦
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(wishlists as (Wishlist & { wishlist_items: { count: number }[] })[]).map(list => {
-            const itemCount = list.wishlist_items?.[0]?.count ?? 0
-            const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || ''}/list/${list.slug}`
-            return (
-              <div key={list.id} className="bg-white rounded-2xl border border-slate-100 hover:border-rose-100 hover:shadow-md transition-all p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <span className="text-xs font-medium text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full">
-                    {occasionLabel(list.occasion)}
-                  </span>
-                  <span className="text-xs text-slate-400">{itemCount} pozycji</span>
-                </div>
-                <h3 className="font-semibold text-slate-900 text-lg mb-1 truncate">{list.title}</h3>
-                {list.description && (
-                  <p className="text-sm text-slate-500 mb-4 line-clamp-2">{list.description}</p>
-                )}
-                <div className="flex items-center gap-2 mt-auto">
-                  <Link
-                    href={`/dashboard/${list.id}`}
-                    className="flex-1 text-center text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 py-2 rounded-xl transition-colors"
-                  >
-                    Edytuj
-                  </Link>
-                  <a
-                    href={`/list/${list.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
-                    title="Podgląd publiczny"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
+        <div style={{ padding: '8px 48px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: 28,
+          }}>
+            {lists.map((list, i) => {
+              const itemCount = list.wishlist_items?.[0]?.count ?? 0
+              const acc = ACCENT_CYCLE[i % ACCENT_CYCLE.length]
+              const emoji = OCCASION_EMOJI[list.occasion ?? ''] ?? '🎁'
+              return (
+                <ListCardClient
+                  key={list.id}
+                  id={list.id}
+                  title={list.title}
+                  subtitle={occasionLabel(list.occasion)}
+                  emoji={emoji}
+                  itemCount={itemCount}
+                  accent={acc.c}
+                  accentSoft={acc.soft}
+                  index={i}
+                />
+              )
+            })}
+
+            {/* Add new list card */}
+            <Link href="/dashboard/new" style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 10, height: 340, borderRadius: 22,
+              border: '2px dashed var(--line-2)', textDecoration: 'none',
+              background: 'transparent', color: 'var(--ink-2)',
+              fontFamily: B, fontWeight: 500,
+              transition: 'transform .3s var(--spring), background .3s',
+              animation: `pop-in .7s var(--spring) ${lists.length * 0.06}s both`,
+            }}
+            onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,.5)'; el.style.transform = 'translateY(-3px) rotate(-1deg)' }}
+            onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'transparent'; el.style.transform = 'none' }}
+            >
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--paper)', boxShadow: 'inset 0 0 0 1px var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
               </div>
-            )
-          })}
+              <span className="display" style={{ fontSize: 22 }}>Nowa <em>lista</em></span>
+              <span style={{ fontSize: 12, color: 'var(--ink-2)' }}>kliknij i nazwij okazję</span>
+            </Link>
+          </div>
+
+          {/* Footer promo */}
+          <div style={{
+            marginTop: 48, padding: '32px 36px', borderRadius: 28,
+            background: `linear-gradient(135deg, var(--c4-soft), var(--c1-soft))`,
+            display: 'flex', alignItems: 'center', gap: 32, position: 'relative', overflow: 'hidden',
+          }}>
+            <FloatingDeco top={-20} right={40} rot={10} delay={0.5}>
+              <Bow size={110} color="var(--c1)" />
+            </FloatingDeco>
+            <FloatingDeco bottom={-30} right={200} rot={-6} delay={1.2}>
+              <Sparkle size={28} color="var(--c4)" />
+            </FloatingDeco>
+            <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+              <div style={{ fontFamily: S, fontSize: 20, color: 'var(--ink-2)', marginBottom: 4 }}>jesienne święta</div>
+              <h3 className="display" style={{ margin: '0 0 8px', fontSize: 32 }}>
+                Pora pomyśleć o <em>Mikołaju</em>
+              </h3>
+              <p style={{ fontFamily: B, margin: '0 0 16px', color: 'var(--ink-2)', maxWidth: 400, fontSize: 14 }}>
+                Stwórz listę dla całej rodziny i daj im podzielić się tym, kto co kupuje — bez podwójnych prezentów.
+              </p>
+              <Link href="/dashboard/new" className="btn btn-ghost" style={{ fontSize: 13 }}>
+                Stwórz listę świąteczną
+              </Link>
+            </div>
+          </div>
         </div>
       )}
     </div>

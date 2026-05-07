@@ -1,407 +1,250 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { Sparkle, Bow, Heart, Star, GiftBox, GiftTag, SquigglyUnderline, FloatingDeco } from '@/components/decorations'
 
-const C = 'var(--font-cormorant)'
-const J = 'var(--font-jakarta)'
+const C = 'var(--font-serif)'
+const B = 'var(--font-sans)'
+const S = 'var(--font-script)'
 
-const CARDS = [
-  { emoji: '🎧', title: 'Sony WH-1000XM5', price: '1 299 zł', rot: -8, delay: 0.2, bg: '#221810', top: '30px', left: '40px' },
-  { emoji: '👟', title: 'Nike Air Jordan 1', price: '849 zł', rot: 6, delay: 0.4, bg: '#1A1208', top: '200px', left: '210px' },
-  { emoji: '📚', title: 'Sapkowski Kolekcja', price: '289 zł', rot: -4, delay: 0.65, bg: '#1E1610', top: '360px', left: '20px' },
-  { emoji: '🎮', title: 'PS5 DualSense', price: '349 zł', rot: 7, delay: 0.85, bg: '#1C1008', top: '110px', left: '340px' },
-  { emoji: '💄', title: 'Charlotte Tilbury', price: '299 zł', rot: -5, delay: 1.05, bg: '#231410', top: '300px', left: '350px' },
+const MOCK_LISTS = [
+  { title: 'Urodziny Kasi', subtitle: 'Czerwiec 2025', items: 12, reserved: 4, accent: 'var(--c1)', soft: 'var(--c1-soft)', emoji: '🎂', rot: -4 },
+  { title: 'Boże Narodzenie', subtitle: 'Cała rodzina', items: 18, reserved: 11, accent: 'var(--c3)', soft: 'var(--c3-soft)', emoji: '🎄', rot: 2 },
+  { title: 'Ślub Magdy', subtitle: 'Wrzesień 2025', items: 9, reserved: 7, accent: 'var(--c5)', soft: 'var(--c5-soft)', emoji: '💍', rot: -1 },
 ]
 
-function GiftCard({ emoji, title, price, rot, delay, bg, top, left }: typeof CARDS[0]) {
+const FEATURES = [
+  { n: '01', title: 'Jeden link,\nwszyscy wiedzą', body: 'Udostępnij link do listy — znajomi sami wybiorą co kupić. Zero duplikatów, zero niezręcznych pytań.', accent: 'var(--c1-soft)', icon: 'link' },
+  { n: '02', title: 'Anonimowe\nrezerwacje', body: 'Osoba rezerwująca prezent jest dla ciebie niewidoczna. Niespodzianka jest ocalona.', accent: 'var(--c3-soft)', icon: 'lock' },
+  { n: '03', title: 'Zawsze\nbezpłatnie', body: 'Tworzenie list, udostępnianie i rezerwacje są bezpłatne. Zawsze. Obiecujemy.', accent: 'var(--c5-soft)', icon: 'gift' },
+]
+
+function MockListCard({ list, style }: { list: (typeof MOCK_LISTS)[0]; style?: React.CSSProperties }) {
   return (
-    <div style={{
-      position: 'absolute', top, left,
-      width: '155px',
-      background: bg,
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '16px',
-      padding: '16px',
-      boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-      opacity: 0,
-      animation: `cardIn 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s forwards`,
-    }}>
-      <div style={{ fontSize: '28px', lineHeight: 1 }}>{emoji}</div>
-      <div style={{ marginTop: '10px', fontSize: '12px', fontWeight: 600, color: '#F5EDD8', lineHeight: 1.35 }}>{title}</div>
-      <div style={{ marginTop: '5px', fontSize: '11px', color: '#C9A96E', fontFamily: J }}>{price}</div>
+    <div style={{ position: 'relative', width: 280, height: 340, ...style }}>
+      <div style={{ position: 'absolute', inset: 16, borderRadius: 18, background: list.soft, transform: 'rotate(-3deg)' }} />
+      <div style={{ position: 'absolute', inset: 8, borderRadius: 18, background: 'var(--paper)', transform: 'rotate(1.5deg)' }} />
       <div style={{
-        marginTop: '12px',
-        height: '2px',
-        borderRadius: '2px',
-        background: 'linear-gradient(90deg, rgba(212,101,42,0.6), transparent)',
-      }} />
+        position: 'absolute', inset: 0, borderRadius: 20, background: 'var(--paper)', padding: 22,
+        boxShadow: 'var(--shadow-2), inset 0 0 0 .5px rgba(255,255,255,.8)',
+        display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: list.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, boxShadow: 'inset 0 0 0 1px rgba(31,26,20,.14)' }}>{list.emoji}</div>
+          <span className="chip" style={{ background: list.soft, boxShadow: 'none', fontSize: 11 }}>{list.items} życzeń</span>
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3 className="display" style={{ fontSize: 28, marginBottom: 4 }}>{list.title}</h3>
+          <p style={{ fontSize: 13, color: 'var(--ink-2)', fontFamily: B }}>{list.subtitle}</p>
+        </div>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 11, color: 'var(--ink-2)', fontFamily: B }}>
+            <span>Zarezerwowane</span>
+            <span className="mono">{list.reserved}/{list.items}</span>
+          </div>
+          <div style={{ height: 6, borderRadius: 999, background: 'var(--bg-2)', overflow: 'hidden' }}>
+            <div style={{ width: `${(list.reserved / list.items) * 100}%`, height: '100%', background: list.accent, borderRadius: 999 }} />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default function HomePage() {
+export default function LandingPage() {
+  const heroRef = useRef<HTMLDivElement>(null)
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
-  const heroRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
+    const onMouse = (e: MouseEvent) => {
       if (!heroRef.current) return
       const r = heroRef.current.getBoundingClientRect()
       setMouse({
-        x: ((e.clientX - r.left) / r.width - 0.5) * 28,
-        y: ((e.clientY - r.top) / r.height - 0.5) * 18,
+        x: (e.clientX - r.left - r.width / 2) / r.width,
+        y: (e.clientY - r.top - r.height / 2) / r.height,
       })
     }
-    window.addEventListener('mousemove', onMove)
-    return () => window.removeEventListener('mousemove', onMove)
-  }, [])
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('vis')),
-      { threshold: 0.12 }
-    )
-    document.querySelectorAll('.rv').forEach(el => obs.observe(el))
-    return () => obs.disconnect()
+    window.addEventListener('mousemove', onMouse)
+    return () => window.removeEventListener('mousemove', onMouse)
   }, [])
 
   return (
     <>
       <style>{`
-        @keyframes cardIn {
-          from { opacity:0; transform:translateY(50px) rotate(var(--r,0deg)); }
-          to   { opacity:1; transform:translateY(0)    rotate(var(--r,0deg)); }
-        }
-        @keyframes sway {
-          0%,100% { transform:translateY(0px); }
-          50%      { transform:translateY(-10px); }
-        }
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(32px); }
+        @keyframes hero-in {
+          from { opacity:0; transform:translateY(28px); }
           to   { opacity:1; transform:translateY(0); }
         }
-        @keyframes badgePop {
-          from { opacity:0; transform:scale(0.85) translateY(8px); }
-          to   { opacity:1; transform:scale(1) translateY(0); }
-        }
-        @keyframes grain {
-          0%,100% { transform:translate(0,0); }
-          10%     { transform:translate(-1%,-2%); }
-          30%     { transform:translate(2%, 1%); }
-          60%     { transform:translate(-2%, 3%); }
-          80%     { transform:translate(1%, -1%); }
-        }
-        .rv {
-          opacity:0;
-          transform:translateY(28px);
-          transition: opacity .75s cubic-bezier(.16,1,.3,1), transform .75s cubic-bezier(.16,1,.3,1);
-        }
-        .rv.vis { opacity:1; transform:translateY(0); }
-        .rv.d1 { transition-delay:.12s; }
-        .rv.d2 { transition-delay:.24s; }
-        .rv.d3 { transition-delay:.36s; }
-        .cta-btn:hover { background:#be5420 !important; transform:translateY(-2px); }
-        .cta-btn { transition: background .2s, transform .2s; }
-        .ghost-btn:hover { background:rgba(255,255,255,0.1) !important; }
-        .ghost-btn { transition: background .2s; }
-        .feature-card:hover { border-color:rgba(212,101,42,0.25) !important; transform:translateY(-4px); }
-        .feature-card { transition: border-color .2s, transform .2s; }
-        @media (max-width:768px) {
+        .hw { animation: hero-in .9s var(--smooth) both; }
+        .hw:nth-child(1){animation-delay:.05s} .hw:nth-child(2){animation-delay:.18s}
+        .hw:nth-child(3){animation-delay:.31s} .hw:nth-child(4){animation-delay:.44s}
+        .nav-link { color:var(--ink-2); text-decoration:none; font-weight:500; font-size:14px; font-family:var(--font-sans); transition:color .15s; }
+        .nav-link:hover { color:var(--ink); }
+        .fc { transition: transform .35s var(--spring), box-shadow .35s var(--smooth); }
+        .fc:hover { transform:translateY(-6px) rotate(-.4deg); box-shadow:var(--shadow-2) !important; }
+        @media (max-width:860px) {
+          .hero-grid { grid-template-columns:1fr !important; }
           .hero-cards { display:none !important; }
-          .hero-text { max-width:100% !important; }
-          .grid-3 { grid-template-columns:1fr !important; }
-          .grid-features { grid-template-columns:1fr !important; }
-          nav .nav-links { display:none !important; }
+          .feat-grid  { grid-template-columns:1fr !important; }
         }
       `}</style>
 
-      <div style={{ background:'#0F0904', color:'#F5EDD8', overflowX:'hidden', fontFamily: J }}>
+      {/* NAV */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'rgba(250,246,238,.88)', backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)', borderBottom: '1px solid var(--line)',
+        padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: 58, animation: 'hero-in .5s var(--smooth) both',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+          <span style={{ fontFamily: C, fontSize: 26, fontStyle: 'italic', color: 'var(--ink)', lineHeight: 1 }}>wisz</span>
+          <span style={{ fontFamily: C, fontSize: 26, fontStyle: 'italic', color: 'var(--c1)', lineHeight: 1 }}>list</span>
+          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--c1)', display: 'inline-block', marginBottom: 5, marginLeft: 2 }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
+          <Link href="/login" className="nav-link">Zaloguj się</Link>
+          <Link href="/login" className="btn" style={{ padding: '9px 18px', fontSize: 13, borderRadius: 12 }}>Stwórz listę →</Link>
+        </div>
+      </nav>
 
-        {/* ── NAV ── */}
-        <nav style={{
-          position:'fixed', top:0, left:0, right:0, zIndex:100,
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          padding:'14px 6vw',
-          background:'rgba(15,9,4,0.75)',
-          backdropFilter:'blur(24px)',
-          borderBottom:'1px solid rgba(255,255,255,0.05)',
+      {/* HERO */}
+      <section ref={heroRef} style={{
+        position: 'relative', overflow: 'hidden',
+        minHeight: 'calc(100vh - 58px)',
+        display: 'flex', alignItems: 'center', background: 'var(--bg)',
+      }}>
+        <div className="grain-overlay" />
+        <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(224,122,95,.10) 0%, transparent 65%)', top: -120, right: -80, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(129,178,154,.09) 0%, transparent 65%)', bottom: -60, left: '25%', pointerEvents: 'none' }} />
+
+        <FloatingDeco top={80} left={28} rot={-18} delay={0}><Star size={26} color="var(--c4)" /></FloatingDeco>
+        <FloatingDeco top={160} right={480} rot={14} delay={0.8} scale={0.8}><Heart size={20} color="var(--c1)" /></FloatingDeco>
+        <FloatingDeco bottom={110} left={52} rot={8} delay={1.4}><Sparkle size={18} color="var(--c3)" /></FloatingDeco>
+        <FloatingDeco top={50} right={48} rot={10} delay={0.4}><GiftTag size={50} color="var(--c4)" /></FloatingDeco>
+
+        <div className="hero-grid" style={{
+          width: '100%', maxWidth: 1200, margin: '0 auto', padding: '64px 48px',
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center',
         }}>
-          <span style={{ fontFamily:C, fontSize:'22px', fontWeight:600, display:'flex', alignItems:'center', gap:'8px' }}>
-            🎁 Wishlist
-          </span>
-          <div className="nav-links" style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-            <Link href="/login" style={{ color:'rgba(245,237,216,0.55)', textDecoration:'none', fontSize:'14px', padding:'8px 16px' }}>
-              Zaloguj się
-            </Link>
-            <Link href="/login" className="cta-btn" style={{
-              background:'#D4652A', color:'#F5EDD8', textDecoration:'none',
-              fontSize:'14px', fontWeight:600, padding:'10px 22px', borderRadius:'100px',
-            }}>
-              Zacznij za darmo →
-            </Link>
-          </div>
-        </nav>
-
-        {/* ── HERO ── */}
-        <section ref={heroRef} style={{
-          minHeight:'100vh', display:'flex', alignItems:'center',
-          padding:'120px 6vw 80px', position:'relative', overflow:'hidden',
-        }}>
-          {/* grain overlay */}
-          <div style={{
-            position:'absolute', inset:'-50%',
-            backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E")`,
-            animation:'grain 7s steps(1) infinite',
-            pointerEvents:'none', zIndex:0,
-          }} />
-
-          {/* ambient glows */}
-          <div style={{ position:'absolute', width:'700px', height:'700px', borderRadius:'50%', background:'radial-gradient(circle, rgba(212,101,42,0.11) 0%, transparent 65%)', top:'-150px', right:'15%', pointerEvents:'none' }} />
-          <div style={{ position:'absolute', width:'450px', height:'450px', borderRadius:'50%', background:'radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 65%)', bottom:'5%', left:'5%', pointerEvents:'none' }} />
-
-          {/* text */}
-          <div className="hero-text" style={{ flex:'0 0 52%', maxWidth:'52%', position:'relative', zIndex:1 }}>
-            <div style={{
-              display:'inline-flex', alignItems:'center', gap:'7px',
-              background:'rgba(212,101,42,0.1)', border:'1px solid rgba(212,101,42,0.22)',
-              color:'#D4652A', fontSize:'12px', fontWeight:700, letterSpacing:'.06em',
-              textTransform:'uppercase', padding:'5px 14px', borderRadius:'100px',
-              marginBottom:'28px',
-              animation:'badgePop .7s cubic-bezier(.16,1,.3,1) .1s both',
-            }}>
-              ✦ Koniec z duplikatami prezentów
+          {/* Left */}
+          <div>
+            <div style={{ marginBottom: 22, display: 'flex', flexWrap: 'wrap', gap: 8, animation: 'hero-in .6s var(--smooth) both' }}>
+              {['🎂 Urodziny', '🎄 Boże Narodzenie', '💍 Ślub', '🎁 Imieniny'].map(t => (
+                <span key={t} className="chip" style={{ fontSize: 12 }}>{t}</span>
+              ))}
             </div>
 
-            <h1 style={{
-              fontFamily:C, fontSize:'clamp(52px, 5.8vw, 92px)',
-              fontWeight:500, fontStyle:'italic', lineHeight:1.04,
-              margin:'0 0 22px',
-              animation:'fadeUp .9s cubic-bezier(.16,1,.3,1) .2s both',
-            }}>
-              Lista życzeń,<br />
-              <em style={{ color:'#D4652A', fontStyle:'normal' }}>którą naprawdę</em><br />
-              chcesz dostać
+            <h1 style={{ fontFamily: C, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(44px, 5.5vw, 72px)', lineHeight: 1.06, marginBottom: 24, color: 'var(--ink)' }}>
+              <span className="hw">Marzenia </span>
+              <span className="hw">zebrane, </span>
+              <span className="hw" style={{ color: 'var(--c1)' }}>niespodzianki </span>
+              <span className="hw">ocalałe.</span>
             </h1>
 
-            <p style={{
-              fontSize:'clamp(15px,1.2vw,18px)', lineHeight:1.7,
-              color:'rgba(245,237,216,0.55)', maxWidth:'400px',
-              margin:'0 0 36px', fontWeight:300,
-              animation:'fadeUp .9s cubic-bezier(.16,1,.3,1) .35s both',
-            }}>
-              Wklej link z Allegro, Zalando czy Amazon. Udostępnij rodzinie.
-              Oni rezerwują anonimowo — nikt nie kupuje dwa razy tego samego.
+            <p style={{ fontFamily: B, fontSize: 17, lineHeight: 1.7, color: 'var(--ink-2)', marginBottom: 36, maxWidth: 440, animation: 'hero-in .9s var(--smooth) .4s both' }}>
+              Zbierz życzenia w jednym miejscu, udostępnij link — a znajomi sami wybiorą co kupić. Koniec z duplikatami.
             </p>
 
-            <div style={{
-              display:'flex', gap:'12px', flexWrap:'wrap',
-              animation:'fadeUp .9s cubic-bezier(.16,1,.3,1) .5s both',
-            }}>
-              <Link href="/login" className="cta-btn" style={{
-                background:'#D4652A', color:'#F5EDD8', textDecoration:'none',
-                fontSize:'16px', fontWeight:600, padding:'15px 30px',
-                borderRadius:'100px', display:'inline-flex', alignItems:'center', gap:'8px',
-              }}>
-                Stwórz listę życzeń <span>→</span>
-              </Link>
-              <a href="#jak-to-dziala" className="ghost-btn" style={{
-                background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)',
-                color:'rgba(245,237,216,0.8)', textDecoration:'none',
-                fontSize:'16px', fontWeight:500, padding:'15px 30px', borderRadius:'100px',
-              }}>
-                Jak to działa?
-              </a>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animation: 'hero-in .9s var(--smooth) .55s both' }}>
+              <Link href="/login" className="btn btn-pop" style={{ fontSize: 15, padding: '14px 28px' }}>Stwórz pierwszą listę ✦</Link>
+              <a href="#jak-to-dziala" className="btn btn-ghost" style={{ fontSize: 15, padding: '14px 28px' }}>Jak to działa?</a>
             </div>
 
-            <div style={{
-              marginTop:'48px', display:'flex', alignItems:'center', gap:'16px',
-              animation:'fadeUp .9s cubic-bezier(.16,1,.3,1) .65s both',
-            }}>
-              <div style={{ display:'flex', marginRight:'4px' }}>
-                {['🧑','👩','👦','👴'].map((f,i) => (
-                  <div key={i} style={{ width:'32px', height:'32px', borderRadius:'50%', background:`hsl(${i*30+15},40%,35%)`, border:'2px solid #0F0904', marginLeft: i ? '-8px' : 0, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px' }}>{f}</div>
+            <div style={{ marginTop: 44, display: 'flex', alignItems: 'center', gap: 14, animation: 'hero-in .9s var(--smooth) .7s both' }}>
+              <div style={{ display: 'flex' }}>
+                {['#E07A5F','#81B29A','#9FC8E0','#D4A853'].map((c, i) => (
+                  <div key={c} style={{ width: 32, height: 32, borderRadius: '50%', background: c, border: '2.5px solid var(--bg)', marginLeft: i === 0 ? 0 : -10, position: 'relative', zIndex: 4 - i, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: C, fontStyle: 'italic', fontSize: 14, color: 'var(--paper)' }}>
+                    {['K','M','A','P'][i]}
+                  </div>
                 ))}
               </div>
-              <p style={{ fontSize:'13px', color:'rgba(245,237,216,0.45)', fontWeight:300 }}>
-                Dołącz do <strong style={{ color:'rgba(245,237,216,0.7)', fontWeight:600 }}>setek Polaków</strong> którzy już korzystają
-              </p>
+              <p style={{ fontFamily: B, fontSize: 13, color: 'var(--ink-2)', margin: 0 }}>Dołącz do setek rodzin korzystających z wishlist</p>
             </div>
           </div>
 
-          {/* floating cards */}
-          <div className="hero-cards" style={{
-            flex:'0 0 48%', position:'relative', height:'520px',
-            transform:`translate(${mouse.x * 0.4}px, ${mouse.y * 0.25}px)`,
-            transition:'transform .4s cubic-bezier(.16,1,.3,1)',
-          }}>
-            {CARDS.map(c => (
-              <div key={c.title} style={{
-                position:'absolute', top:c.top, left:c.left,
-                animation:`cardIn .9s cubic-bezier(.16,1,.3,1) ${c.delay}s both`,
+          {/* Right — cards */}
+          <div className="hero-cards" style={{ position: 'relative', height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {MOCK_LISTS.map((list, i) => (
+              <div key={list.title} style={{
+                position: 'absolute',
+                transform: `rotate(${list.rot + mouse.x * 3}deg) translateY(${-i * 14 + mouse.y * 8}px) translateX(${mouse.x * (i - 1) * 10}px) scale(${1 - i * 0.04})`,
+                zIndex: 3 - i,
+                transition: 'transform .5s var(--smooth)',
+                left: `${24 + i * 14}px`, top: `${i * 12}px`,
+                animation: `pop-in .8s var(--spring) ${i * 0.12 + 0.2}s both`,
               }}>
-                <div style={{ animation:`sway ${4.5 + c.delay}s ease-in-out ${c.delay + 0.9}s infinite` }}>
-                  <div style={{
-                    width:'155px',
-                    background:c.bg,
-                    border:'1px solid rgba(255,255,255,0.07)',
-                    borderRadius:'16px',
-                    padding:'16px',
-                    boxShadow:`0 24px 64px rgba(0,0,0,0.5)`,
-                    transform:`rotate(${c.rot}deg)`,
-                  }}>
-                    <div style={{ fontSize:'28px', lineHeight:1 }}>{c.emoji}</div>
-                    <div style={{ marginTop:'10px', fontSize:'12px', fontWeight:600, color:'#F5EDD8', lineHeight:1.35 }}>{c.title}</div>
-                    <div style={{ marginTop:'5px', fontSize:'11px', color:'#C9A96E' }}>{c.price}</div>
-                    <div style={{ marginTop:'12px', height:'2px', borderRadius:'2px', background:'linear-gradient(90deg, rgba(212,101,42,0.5), transparent)' }} />
-                  </div>
-                </div>
+                <MockListCard list={list} />
               </div>
             ))}
+            <FloatingDeco top={10} right={10} rot={12} delay={0.3}><Bow size={72} color="var(--c2)" /></FloatingDeco>
+            <FloatingDeco bottom={30} right={0} rot={-12} delay={1.1}><Sparkle size={24} color="var(--c1)" /></FloatingDeco>
+            <FloatingDeco bottom={70} left={0} rot={6} delay={0.7}><Heart size={18} color="var(--c5)" /></FloatingDeco>
+          </div>
+        </div>
+      </section>
 
-            {/* reserved badge example */}
-            <div style={{
-              position:'absolute', top:'230px', left:'160px',
-              background:'#1B3024', border:'1px solid rgba(139,173,138,0.2)',
-              borderRadius:'12px', padding:'10px 14px',
-              animation:`cardIn .9s cubic-bezier(.16,1,.3,1) 1.2s both`,
-              boxShadow:'0 12px 40px rgba(0,0,0,0.4)',
-            }}>
-              <div style={{ fontSize:'11px', fontWeight:600, color:'#8BAD8A', display:'flex', alignItems:'center', gap:'6px' }}>
-                <span>✓</span> Zarezerwowane
+      {/* HOW IT WORKS */}
+      <section id="jak-to-dziala" style={{ background: 'var(--paper)', borderTop: '1px solid var(--line)', padding: '80px 48px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <p style={{ fontFamily: S, fontSize: 22, color: 'var(--ink-2)', marginBottom: 8 }}>jak to działa?</p>
+            <h2 style={{ fontFamily: C, fontStyle: 'italic', fontSize: 'clamp(36px, 4vw, 56px)', color: 'var(--ink)', fontWeight: 400, position: 'relative', display: 'inline-block' }}>
+              Trzy kroki do spokoju
+              <SquigglyUnderline width={280} color="var(--c1)" style={{ position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)' }} />
+            </h2>
+          </div>
+          <div className="feat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
+            {FEATURES.map((f, i) => (
+              <div key={f.n} className="fc" style={{
+                padding: '32px 28px', borderRadius: 24, background: f.accent,
+                position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-1)',
+                animation: `pop-in .7s var(--spring) ${i * 0.1 + 0.1}s both`,
+              }}>
+                <div style={{ fontFamily: C, fontStyle: 'italic', fontSize: 64, color: 'rgba(31,26,20,.07)', lineHeight: 1, position: 'absolute', top: 16, right: 20 }}>{f.n}</div>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(31,26,20,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                  {f.icon === 'link' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg>}
+                  {f.icon === 'lock' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
+                  {f.icon === 'gift' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>}
+                </div>
+                <h3 style={{ fontFamily: C, fontStyle: 'italic', fontSize: 28, marginBottom: 10, whiteSpace: 'pre-line', color: 'var(--ink)' }}>{f.title}</h3>
+                <p style={{ fontFamily: B, fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.65, margin: 0 }}>{f.body}</p>
               </div>
-            </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* scroll indicator */}
-          <div style={{
-            position:'absolute', bottom:'32px', left:'50%', transform:'translateX(-50%)',
-            display:'flex', flexDirection:'column', alignItems:'center', gap:'6px',
-            animation:'fadeUp .9s cubic-bezier(.16,1,.3,1) 1.2s both',
-          }}>
-            <div style={{ width:'1px', height:'36px', background:'linear-gradient(to bottom, rgba(245,237,216,0.4), transparent)' }} />
-            <span style={{ fontSize:'10px', letterSpacing:'.1em', color:'rgba(245,237,216,0.3)', textTransform:'uppercase' }}>scroll</span>
-          </div>
-        </section>
-
-        {/* ── HOW IT WORKS ── */}
-        <section id="jak-to-dziala" style={{ background:'#F7F0E3', color:'#120C08', padding:'100px 6vw' }}>
-          <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
-            <div className="rv" style={{ marginBottom:'64px' }}>
-              <p style={{ fontSize:'11px', fontWeight:700, letterSpacing:'.14em', color:'#D4652A', textTransform:'uppercase', marginBottom:'14px' }}>Jak to działa</p>
-              <h2 style={{ fontFamily:C, fontSize:'clamp(34px,4vw,60px)', fontWeight:500, fontStyle:'italic', lineHeight:1.08, margin:0 }}>
-                Trzy kroki do<br />idealnych prezentów
-              </h2>
-            </div>
-
-            <div className="grid-3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'56px' }}>
-              {[
-                { n:'01', emoji:'🔗', t:'Dodaj produkty', d:'Wklej link z dowolnego sklepu — Allegro, Zalando, ASOS. Tytuł, zdjęcie i cena pojawiają się automatycznie.' },
-                { n:'02', emoji:'📨', t:'Udostępnij link', d:'Każda lista ma unikalny URL. Jeden klik — rodzina i znajomi widzą co chcesz dostać.' },
-                { n:'03', emoji:'🎉', t:'Dostań to co chcesz', d:'Goście rezerwują prezenty anonimowo. Ty nie wiesz kto co kupuje — niespodzianki zachowane!' },
-              ].map((s,i) => (
-                <div key={s.n} className={`rv d${i+1}`}>
-                  <div style={{ fontFamily:C, fontSize:'80px', fontWeight:300, color:'rgba(18,12,8,0.07)', lineHeight:1, marginBottom:'-24px' }}>{s.n}</div>
-                  <div style={{ fontSize:'36px', marginBottom:'16px' }}>{s.emoji}</div>
-                  <h3 style={{ fontFamily:C, fontSize:'26px', fontWeight:600, marginBottom:'12px', lineHeight:1.2 }}>{s.t}</h3>
-                  <p style={{ fontSize:'15px', lineHeight:1.7, color:'rgba(18,12,8,0.55)', fontWeight:300 }}>{s.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FEATURES ── */}
-        <section style={{ background:'#130A04', padding:'100px 6vw' }}>
-          <div style={{ maxWidth:'1100px', margin:'0 auto' }}>
-            <div className="rv" style={{ textAlign:'center', marginBottom:'56px' }}>
-              <h2 style={{ fontFamily:C, fontSize:'clamp(34px,4vw,60px)', fontWeight:500, fontStyle:'italic', lineHeight:1.08, margin:'0 0 14px' }}>
-                Wszystko czego potrzebujesz
-              </h2>
-              <p style={{ color:'rgba(245,237,216,0.4)', fontSize:'17px', fontWeight:300, margin:0 }}>
-                Zaprojektowane dla polskich użytkowników
-              </p>
-            </div>
-
-            <div className="grid-features" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'18px' }}>
-              {[
-                { i:'🛍️', t:'Dowolny sklep', d:'Allegro, Zalando, ASOS, Amazon, Empik — wklejasz link, my pobieramy dane automatycznie.', a:'#D4652A' },
-                { i:'🔒', t:'100% prywatności', d:'Właściciel listy nigdy nie widzi kto co zarezerwował. Tylko że dane jest zajęte.', a:'#C9A96E' },
-                { i:'✨', t:'Zero konta dla gości', d:'Rodzina rezerwuje jednym kliknięciem. Żadnej rejestracji, żadnej aplikacji do pobrania.', a:'#8BAD8A' },
-                { i:'📱', t:'Mobile first', d:'Działa pięknie na każdym urządzeniu. Udostępniasz przez WhatsApp — otwiera się od razu.', a:'#A98BD4' },
-                { i:'🎯', t:'Priorytety prezentów', d:'"Bardzo chcę", "Chciałbym", "Fajnie byłoby" — goście wiedzą co jest ważniejsze.', a:'#D4652A' },
-                { i:'🔗', t:'Jeden link', d:'Jeden unikalny URL na listę. Wyślij przez SMS, email, WhatsApp — działa wszędzie.', a:'#C9A96E' },
-              ].map((f,i) => (
-                <div key={f.t} className={`rv feature-card d${(i%3)+1}`} style={{
-                  background:'rgba(255,255,255,0.025)',
-                  border:'1px solid rgba(255,255,255,0.07)',
-                  borderRadius:'20px', padding:'28px',
-                }}>
-                  <div style={{
-                    width:'48px', height:'48px', borderRadius:'14px',
-                    background:`${f.a}18`, display:'flex', alignItems:'center',
-                    justifyContent:'center', fontSize:'22px', marginBottom:'20px',
-                  }}>{f.i}</div>
-                  <h3 style={{ fontFamily:C, fontSize:'22px', fontWeight:600, marginBottom:'10px', color:'#F5EDD8', lineHeight:1.2 }}>{f.t}</h3>
-                  <p style={{ fontSize:'14px', lineHeight:1.65, color:'rgba(245,237,216,0.45)', fontWeight:300, margin:0 }}>{f.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── QUOTE ── */}
-        <section style={{ background:'#F7F0E3', padding:'80px 6vw', textAlign:'center' }}>
-          <div className="rv" style={{ maxWidth:'700px', margin:'0 auto' }}>
-            <div style={{ fontFamily:C, fontSize:'clamp(28px,3.5vw,52px)', fontStyle:'italic', fontWeight:400, color:'#120C08', lineHeight:1.2, marginBottom:'24px' }}>
-              "Najlepszy prezent to taki,<br />którego sam byś sobie nie kupił."
-            </div>
-            <p style={{ color:'rgba(18,12,8,0.4)', fontSize:'14px', fontWeight:500, letterSpacing:'.06em', textTransform:'uppercase' }}>
-              — Stare polskie powiedzenie
-            </p>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
-        <section style={{ background:'#D4652A', padding:'100px 6vw', textAlign:'center', position:'relative', overflow:'hidden' }}>
-          <div style={{
-            position:'absolute', inset:0, opacity:.04,
-            backgroundImage:`url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23fff'/%3E%3C/svg%3E")`,
-          }} />
-          <div style={{ position:'relative', zIndex:1 }}>
-            <div className="rv">
-              <h2 style={{ fontFamily:C, fontSize:'clamp(40px,5vw,76px)', fontWeight:500, fontStyle:'italic', color:'#F5EDD8', margin:'0 0 16px', lineHeight:1.05 }}>
-                Twoje wymarzone urodziny<br />zaczynają się tutaj
-              </h2>
-            </div>
-            <p className="rv d1" style={{ color:'rgba(245,237,216,0.75)', fontSize:'18px', marginBottom:'36px', fontWeight:300 }}>
-              Stwórz pierwszą listę w mniej niż minutę. Całkowicie za darmo.
-            </p>
-            <div className="rv d2">
-              <Link href="/login" style={{
-                display:'inline-block',
-                background:'#F5EDD8', color:'#D4652A',
-                textDecoration:'none', fontSize:'17px', fontWeight:700,
-                padding:'16px 40px', borderRadius:'100px',
-                transition:'transform .2s, box-shadow .2s',
-              }}
-              onMouseEnter={e => { (e.target as HTMLElement).style.transform = 'translateY(-3px)'; (e.target as HTMLElement).style.boxShadow = '0 12px 40px rgba(0,0,0,0.2)' }}
-              onMouseLeave={e => { (e.target as HTMLElement).style.transform = ''; (e.target as HTMLElement).style.boxShadow = '' }}
-              >
-                Stwórz listę życzeń →
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── FOOTER ── */}
-        <footer style={{ background:'#0A0502', padding:'28px 6vw', textAlign:'center', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
-          <p style={{ color:'rgba(245,237,216,0.2)', fontSize:'13px', fontWeight:300, margin:0 }}>
-            &copy; {new Date().getFullYear()} Wishlist — Made with ❤️ in Poland
+      {/* CTA */}
+      <section style={{ padding: '80px 48px', background: 'var(--bg)', position: 'relative', overflow: 'hidden' }}>
+        <div className="grain-overlay" style={{ opacity: .03 }} />
+        <FloatingDeco top={-30} right={100} rot={12} delay={0}><Bow size={100} color="var(--c2)" /></FloatingDeco>
+        <FloatingDeco bottom={-20} left={80} rot={-10} delay={1.2}><Star size={30} color="var(--c4)" /></FloatingDeco>
+        <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <GiftBox size={120} style={{ margin: '0 auto 28px' }} />
+          <p style={{ fontFamily: S, fontSize: 24, color: 'var(--c1)', marginBottom: 12 }}>gotowy?</p>
+          <h2 style={{ fontFamily: C, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(36px, 4.5vw, 56px)', lineHeight: 1.08, color: 'var(--ink)', marginBottom: 16 }}>
+            Zacznij zbierać marzenia.<br />To zajmie minutę.
+          </h2>
+          <p style={{ fontFamily: B, fontSize: 16, color: 'var(--ink-2)', marginBottom: 32, lineHeight: 1.7 }}>
+            Bez instalacji, bez karty kredytowej. Wystarczy adres email.
           </p>
-        </footer>
+          <Link href="/login" className="btn btn-pop" style={{ fontSize: 16, padding: '16px 32px', borderRadius: 16 }}>
+            Stwórz listę za darmo ✦
+          </Link>
+        </div>
+      </section>
 
-      </div>
+      {/* FOOTER */}
+      <footer style={{ borderTop: '1px solid var(--line)', padding: '22px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--paper)', flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+          <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 20, color: 'var(--ink)' }}>wisz</span>
+          <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 20, color: 'var(--c1)' }}>list</span>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--c1)', display: 'inline-block', marginBottom: 4, marginLeft: 2 }} />
+        </div>
+        <p style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)' }}>Magia prezentów, bez dramy. Made with ✦ in Poland.</p>
+      </footer>
     </>
   )
 }

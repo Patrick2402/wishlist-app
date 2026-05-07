@@ -1,16 +1,254 @@
 @import "tailwindcss";
 
+/* ── Design Tokens (Confetti palette — default) ──────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --bg:     #FAF6EE;
+  --bg-2:   #F0E9DA;
+  --ink:    #1F1A14;
+  --ink-2:  #7A6A54;
+  --paper:  #FFFDF8;
+  --line:   rgba(31,26,20,.10);
+  --line-2: rgba(31,26,20,.16);
+
+  --c1:      #E07A5F;
+  --c2:      #D4A853;
+  --c3:      #81B29A;
+  --c4:      #F2CC8F;
+  --c5:      #9FC8E0;
+  --c1-soft: #F5DDD6;
+  --c2-soft: #F5E8C8;
+  --c3-soft: #D4F0DC;
+  --c4-soft: #FAF0CC;
+  --c5-soft: #D8E8F8;
+
+  --shadow-1: 0 2px 8px rgba(31,26,20,.08);
+  --shadow-2: 0 8px 24px rgba(31,26,20,.12), 0 1px 4px rgba(31,26,20,.06);
+  --shadow-3: 0 24px 60px rgba(31,26,20,.18), 0 4px 12px rgba(31,26,20,.10);
+
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  --smooth: cubic-bezier(.16,1,.3,1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+/* ── Lavender palette override ────────────────────────────────────────── */
+[data-palette="lavender"] {
+  --bg: #F4F0F9; --bg-2: #EAE3F4; --ink: #231C36; --ink-2: #6A5E84;
+  --paper: #FBF8FF; --line: rgba(35,28,54,.10); --line-2: rgba(35,28,54,.16);
+  --c1: #C7B2EB; --c2: #F4B7DD; --c3: #A6D8C5; --c4: #FFD580; --c5: #A5C5F2;
+  --c1-soft: #E5DAF5; --c2-soft: #FBE0EE; --c3-soft: #D8EEE4; --c4-soft: #FFEEC4; --c5-soft: #DCE7F8;
 }
+
+/* ── Sherbet palette override ─────────────────────────────────────────── */
+[data-palette="sherbet"] {
+  --bg: #FFF6EE; --bg-2: #FCEDDB; --ink: #2A1810; --ink-2: #7A5A4A;
+  --paper: #FFFBF4; --line: rgba(42,24,16,.10); --line-2: rgba(42,24,16,.16);
+  --c1: #FF9F87; --c2: #FFB8A0; --c3: #88D9B8; --c4: #FFCD5C; --c5: #C9B6F5;
+  --c1-soft: #FFE0D2; --c2-soft: #FFE6D8; --c3-soft: #D6F0E4; --c4-soft: #FFEDC0; --c5-soft: #E5DDF8;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans, 'Bricolage Grotesque'), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
+
+/* ── Typography classes ────────────────────────────────────────────────── */
+.display {
+  font-family: var(--font-serif, 'Georgia'), serif;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.script {
+  font-family: var(--font-script, 'Caveat'), cursive;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.mono {
+  font-family: 'Courier New', monospace;
+  font-size: .9em;
+}
+
+/* ── Paper card surface ────────────────────────────────────────────────── */
+.paper {
+  background: var(--paper);
+  border-radius: 20px;
+  box-shadow: var(--shadow-1), inset 0 0 0 .5px rgba(255,255,255,.7);
+}
+
+/* ── Chip pill ────────────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-family: var(--font-sans, system-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  border: 0;
+  transition: background .2s var(--smooth), transform .2s var(--spring);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chip:hover { transform: translateY(-1px); }
+.chip[data-active="1"] { background: var(--ink); color: var(--paper); box-shadow: none; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans, system-ui);
+  font-weight: 600;
+  font-size: 14px;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .25s var(--spring), box-shadow .25s var(--smooth), background .2s;
+  box-shadow: 0 4px 0 rgba(31,26,20,.16);
+  letter-spacing: .01em;
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(31,26,20,.16), 0 12px 28px rgba(31,26,20,.12);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(31,26,20,.16);
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-pop {
+  background: var(--c1);
+  color: var(--ink);
+  box-shadow: 0 4px 0 rgba(31,26,20,.14), inset 0 0 0 1px rgba(31,26,20,.12);
+}
+.btn-pop:hover:not(:disabled) {
+  box-shadow: 0 6px 0 rgba(31,26,20,.14), 0 12px 28px rgba(31,26,20,.12), inset 0 0 0 1px rgba(31,26,20,.12);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--line-2);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1.5px var(--line-2), var(--shadow-1);
+}
+
+/* ── Input / textarea ─────────────────────────────────────────────────── */
+.field {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: var(--font-sans, system-ui);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s var(--smooth);
+  box-sizing: border-box;
+}
+.field:focus { border-color: var(--c1); }
+.field::placeholder { color: var(--ink-2); opacity: .7; }
+
+/* ── Animations ───────────────────────────────────────────────────────── */
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(.92) translateY(14px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+  50%       { transform: rotate(var(--rot, 0deg)) translateY(-8px); }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0,0); }
+  20%       { transform: translate(-1%,1%); }
+  40%       { transform: translate(1%,-1%); }
+  60%       { transform: translate(-1%,-1%); }
+  80%       { transform: translate(1%,1%); }
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes confetti-fly {
+  0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--tx,0), var(--ty,220px)) rotate(var(--rot,360deg)); opacity: 0; }
+}
+
+@keyframes scale-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+
+@keyframes shimmer {
+  0%   { opacity: .6; }
+  50%  { opacity: 1; }
+  100% { opacity: .6; }
+}
+
+/* ── Confetti burst ───────────────────────────────────────────────────── */
+.confetti-stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.confetti-stage span {
+  position: absolute;
+  width: 8px;
+  height: 13px;
+  border-radius: 3px;
+  animation: confetti-fly 1.5s var(--smooth) both;
+}
+
+/* ── Grain overlay ────────────────────────────────────────────────────── */
+.grain-overlay {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .04;
+  animation: grain 8s steps(1) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-2); }
+
+/* ── Selection ────────────────────────────────────────────────────────── */
+::selection { background: var(--c1-soft); color: var(--ink); }
