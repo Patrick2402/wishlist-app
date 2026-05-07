@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { Bow, Sparkle, Heart, Star, FloatingDeco, GiftBox } from '@/components/decorations'
 
 const C = 'var(--font-serif)'
@@ -16,7 +15,6 @@ const ERROR_MESSAGES: Record<string, string> = {
 }
 
 export default function LoginPage() {
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -24,9 +22,10 @@ export default function LoginPage() {
   const [focused, setFocused] = useState(false)
 
   useEffect(() => {
-    const err = searchParams.get('error')
+    const params = new URLSearchParams(window.location.search)
+    const err = params.get('error')
     if (err && ERROR_MESSAGES[err]) setError(ERROR_MESSAGES[err])
-  }, [searchParams])
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
