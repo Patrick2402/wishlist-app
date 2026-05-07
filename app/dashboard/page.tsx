@@ -40,6 +40,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ padding: '0 0 80px' }}>
+      <style>{`.new-list-card:hover { background: rgba(255,255,255,.5) !important; transform: translateY(-3px) rotate(-1deg) !important; }`}</style>
       {/* Header */}
       <header style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
         <div>
@@ -111,7 +112,7 @@ export default async function DashboardPage() {
             })}
 
             {/* Add new list card */}
-            <Link href="/dashboard/new" style={{
+            <Link href="/dashboard/new" className="new-list-card" style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               gap: 10, height: 340, borderRadius: 22,
               border: '2px dashed var(--line-2)', textDecoration: 'none',
@@ -119,10 +120,7 @@ export default async function DashboardPage() {
               fontFamily: B, fontWeight: 500,
               transition: 'transform .3s var(--spring), background .3s',
               animation: `pop-in .7s var(--spring) ${lists.length * 0.06}s both`,
-            }}
-            onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,.5)'; el.style.transform = 'translateY(-3px) rotate(-1deg)' }}
-            onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'transparent'; el.style.transform = 'none' }}
-            >
+            }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--paper)', boxShadow: 'inset 0 0 0 1px var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
               </div>
