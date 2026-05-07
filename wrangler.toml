@@ -2,7 +2,3 @@ name = "wishlist-app"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
-
-[vars]
-NEXT_PUBLIC_SUPABASE_URL = "https://yervhjwzpyeukawatbge.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllcnZoand6cHlldWthd2F0YmdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzUzOTEsImV4cCI6MjA5Mzc1MTM5MX0.6gfetAaJVkCcOI1VCaKiJOt6hRs3rra23Ag5gefCMiw"
