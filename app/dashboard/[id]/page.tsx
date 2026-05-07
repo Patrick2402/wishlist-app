@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { WishlistItem, PRIORITY_LABELS, OCCASIONS } from '@/types'
