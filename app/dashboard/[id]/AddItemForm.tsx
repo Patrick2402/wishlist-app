@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { PRIORITY_LABELS } from '@/types'
@@ -12,11 +12,32 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [price, setPrice] = useState('')
   const [priority, setPriority] = useState<1 | 2 | 3>(2)
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(false)
   const [error, setError] = useState('')
+  const fetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  async function fetchOgData(rawUrl: string) {
+    if (!rawUrl.startsWith('http')) return
+    setFetching(true)
+    try {
+      const res = await fetch(`/api/fetch-og?url=${encodeURIComponent(rawUrl)}`)
+      const data = await res.json()
+      if (data.image && !imageUrl) setImageUrl(data.image)
+      if (data.title && !title) setTitle(data.title)
+    } catch {}
+    setFetching(false)
+  }
+
+  function handleUrlChange(val: string) {
+    setUrl(val)
+    if (fetchTimer.current) clearTimeout(fetchTimer.current)
+    fetchTimer.current = setTimeout(() => fetchOgData(val), 800)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -25,11 +46,13 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
     const supabase = createClient()
     const { error } = await supabase.from('wishlist_items').insert({
       wishlist_id: wishlistId, title,
-      url: url || null, price: price ? parseFloat(price) : null,
+      url: url || null,
+      image_url: imageUrl || null,
+      price: price ? parseFloat(price) : null,
       priority, notes: notes || null, position: itemCount,
     })
     if (error) { setError('Nie udało się dodać produktu.'); setLoading(false); return }
-    setTitle(''); setUrl(''); setPrice(''); setPriority(2); setNotes('')
+    setTitle(''); setUrl(''); setImageUrl(''); setPrice(''); setPriority(2); setNotes('')
     setOpen(false)
     router.refresh()
     setLoading(false)
@@ -61,6 +84,18 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
         </button>
       </div>
 
+      {/* URL — first, triggers auto-detect */}
+      <div>
+        <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 6 }}>
+          Link do produktu
+          {fetching && <span style={{ marginLeft: 8, color: 'var(--c2)', fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>Pobieranie danych…</span>}
+        </label>
+        <div style={{ position: 'relative' }}>
+          <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg>
+          <input type="url" value={url} onChange={e => handleUrlChange(e.target.value)} placeholder="https://allegro.pl/… (auto-detect nazwy i zdjęcia)" className="field" style={{ paddingLeft: 38, fontSize: 14 }} />
+        </div>
+      </div>
+
       {/* Title */}
       <div>
         <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 6 }}>
@@ -69,12 +104,20 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="np. Buty Nike Air Max 90" required className="field" style={{ fontSize: 14 }} />
       </div>
 
-      {/* URL */}
+      {/* Image preview + URL */}
       <div>
-        <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 6 }}>Link do produktu</label>
-        <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg>
-          <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://allegro.pl/..." className="field" style={{ paddingLeft: 38, fontSize: 14 }} />
+        <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 6 }}>Zdjęcie produktu</label>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          {imageUrl && (
+            <div style={{ width: 56, height: 56, borderRadius: 10, overflow: 'hidden', flexShrink: 0, border: '1px solid var(--line)', position: 'relative' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <button type="button" onClick={() => setImageUrl('')} style={{ position: 'absolute', top: 2, right: 2, width: 16, height: 16, borderRadius: '50%', background: 'rgba(31,26,20,.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+          )}
+          <input type="url" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://... (auto-wypełniane z linku)" className="field" style={{ fontSize: 13, flex: 1 }} />
         </div>
       </div>
 

@@ -48,13 +48,18 @@ export default function ItemCard({ item, wishlistId, index = 0 }: { item: Wishli
         animation: `pop-in .5s var(--spring) ${index * 0.04}s both`,
       }}
     >
-      {/* Priority indicator */}
+      {/* Image or priority indicator */}
       <div style={{
-        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+        width: 52, height: 52, borderRadius: 12, flexShrink: 0, overflow: 'hidden',
         background: PRIORITY_BG[item.priority] ?? 'var(--bg-2)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        border: '1px solid var(--line)',
       }}>
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: PRIORITY_DOT_COLORS[item.priority] ?? 'var(--c2)' }} />
+        {item.image_url
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={item.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <div style={{ width: 10, height: 10, borderRadius: '50%', background: PRIORITY_DOT_COLORS[item.priority] ?? 'var(--c2)' }} />
+        }
       </div>
 
       {/* Content */}

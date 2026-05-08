@@ -18,9 +18,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const supabase = await createClient()
   const { data } = await supabase.from('wishlists').select('title, description').eq('slug', slug).single()
   if (!data) return {}
+  const title = `${data.title} — Lista życzeń`
+  const description = data.description ?? `Sprawdź listę życzeń: ${data.title}. Kliknij i zarezerwuj prezent!`
   return {
-    title: `${data.title} — Lista życzeń`,
-    description: data.description ?? `Lista życzeń: ${data.title}`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      locale: 'pl_PL',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
@@ -143,9 +156,13 @@ export default async function PublicWishlistPage({ params }: { params: Promise<{
                   animation: `pop-in .5s var(--spring) ${i * 0.05}s both`,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                    {/* Priority dot */}
-                    <div style={{ width: 40, height: 40, borderRadius: 12, background: pc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: pc.dot }} />
+                    {/* Image or priority dot */}
+                    <div style={{ width: 64, height: 64, borderRadius: 14, background: pc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                      {item.image_url
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={item.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <div style={{ width: 12, height: 12, borderRadius: '50%', background: pc.dot }} />
+                      }
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
