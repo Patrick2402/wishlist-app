@@ -46,10 +46,10 @@ function NavIcon({ name, active }: NavIconProps) {
 }
 
 const NAV = [
-  { id: 'lists',      label: 'Listy',      href: '/dashboard',             icon: 'lists' },
-  { id: 'inspiracje', label: 'Inspiracje', href: '/dashboard/inspiracje',  icon: 'compass' },
-  { id: 'aktywnosc',  label: 'Aktywność',  href: '/dashboard/aktywnosc',   icon: 'activity' },
-  { id: 'profil',     label: 'Profil',     href: '/dashboard/profil',      icon: 'user' },
+  { id: 'lists',      label: 'Listy',      href: '/dashboard', icon: 'lists',    soon: false },
+  { id: 'inspiracje', label: 'Inspiracje', href: null,          icon: 'compass',  soon: true  },
+  { id: 'aktywnosc',  label: 'Aktywność',  href: null,          icon: 'activity', soon: true  },
+  { id: 'profil',     label: 'Profil',     href: null,          icon: 'user',     soon: true  },
 ]
 
 export default function DashboardSidebar({ email }: { email: string }) {
@@ -95,9 +95,24 @@ export default function DashboardSidebar({ email }: { email: string }) {
         </Link>
 
         {NAV.map(n => {
-          const active = isActive(n.href)
+          if (n.soon) {
+            return (
+              <div key={n.id} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 12px', borderRadius: 12,
+                fontFamily: B, fontWeight: 500, fontSize: 14,
+                color: 'var(--ink-3, rgba(31,26,20,.3))',
+                cursor: 'default', opacity: 0.55,
+              }}>
+                <NavIcon name={n.icon} active={false} />
+                <span>{n.label}</span>
+                <span style={{ marginLeft: 'auto', fontFamily: B, fontSize: 9, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-2)', background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 6, padding: '2px 5px' }}>soon</span>
+              </div>
+            )
+          }
+          const active = isActive(n.href!)
           return (
-            <Link key={n.id} href={n.href} style={{
+            <Link key={n.id} href={n.href!} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '10px 12px', borderRadius: 12, textDecoration: 'none',
               background: active ? 'var(--bg)' : 'transparent',
@@ -166,9 +181,17 @@ export default function DashboardSidebar({ email }: { email: string }) {
         padding: '0 4px',
       }}>
         {NAV.map(n => {
-          const active = isActive(n.href)
+          if (n.soon) {
+            return (
+              <div key={n.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '8px 0', opacity: 0.4 }}>
+                <NavIcon name={n.icon} active={false} />
+                <span style={{ fontFamily: B, fontSize: 10, fontWeight: 600, color: 'var(--ink-2)' }}>{n.label}</span>
+              </div>
+            )
+          }
+          const active = isActive(n.href!)
           return (
-            <Link key={n.id} href={n.href} style={{
+            <Link key={n.id} href={n.href!} style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               textDecoration: 'none', flex: 1, padding: '8px 0',
             }}>
