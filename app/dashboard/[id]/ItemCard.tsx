@@ -45,7 +45,7 @@ function GiftIllustration({ accent }: { accent: string }) {
   )
 }
 
-export default function ItemCard({ item, index = 0 }: { item: WishlistItem; index?: number }) {
+export default function ItemCard({ item, index = 0, onOpen }: { item: WishlistItem; index?: number; onOpen?: (item: WishlistItem) => void }) {
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
   const [hover, setHover] = useState(false)
@@ -69,10 +69,11 @@ export default function ItemCard({ item, index = 0 }: { item: WishlistItem; inde
 
   return (
     <article
+      onClick={() => onOpen?.(item)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        position: 'relative', cursor: 'default',
+        position: 'relative', cursor: 'pointer',
         background: 'var(--paper)', borderRadius: 20,
         boxShadow: hover ? 'var(--shadow-2)' : 'var(--shadow-1)',
         transform: hover ? 'translateY(-4px) rotate(-.3deg)' : 'translateY(0)',
@@ -141,7 +142,7 @@ export default function ItemCard({ item, index = 0 }: { item: WishlistItem; inde
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
             </a>
           )}
-          <button onClick={handleDelete} disabled={deleting}
+          <button onClick={e => { e.stopPropagation(); handleDelete() }} disabled={deleting}
             style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,251,242,.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c1)', border: 'none', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}
             title="Usuń produkt"
           >

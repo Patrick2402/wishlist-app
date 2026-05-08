@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { WishlistItem } from '@/types'
 import ItemCard from './ItemCard'
 import AddItemModal from './AddItemModal'
+import ItemDetailModal from './ItemDetailModal'
 
 const B = 'var(--font-sans)'
 
@@ -12,6 +13,7 @@ type Filter = 'all' | 'available' | 'reserved'
 export default function ItemsGrid({ items, wishlistId }: { items: WishlistItem[]; wishlistId: string }) {
   const [filter, setFilter] = useState<Filter>('all')
   const [modalOpen, setModalOpen] = useState(false)
+  const [detailItem, setDetailItem] = useState<WishlistItem | null>(null)
 
   const available = items.filter(i => !i.is_reserved).length
   const reserved = items.filter(i => i.is_reserved).length
@@ -81,7 +83,7 @@ export default function ItemsGrid({ items, wishlistId }: { items: WishlistItem[]
           gap: 16, marginBottom: 20,
         }}>
           {filtered.map((item, i) => (
-            <ItemCard key={item.id} item={item} index={i} />
+            <ItemCard key={item.id} item={item} index={i} onOpen={setDetailItem} />
           ))}
         </div>
       )}
@@ -101,6 +103,8 @@ export default function ItemsGrid({ items, wishlistId }: { items: WishlistItem[]
           Dodaj produkt
         </button>
       )}
+
+      <ItemDetailModal item={detailItem} onClose={() => setDetailItem(null)} />
 
       <AddItemModal
         open={modalOpen}
