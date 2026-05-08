@@ -40,9 +40,16 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ padding: '0 0 80px' }}>
-      <style>{`.new-list-card:hover { background: rgba(255,255,255,.5) !important; transform: translateY(-3px) rotate(-1deg) !important; }`}</style>
+      <style>{`
+        .new-list-card:hover { background: rgba(255,255,255,.5) !important; transform: translateY(-3px) rotate(-1deg) !important; }
+        @media (max-width: 680px) {
+          .dash-header { padding: 24px 20px 16px !important; flex-wrap: wrap; }
+          .dash-content { padding: 0 16px !important; }
+          .dash-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+        }
+      `}</style>
       {/* Header */}
-      <header style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
+      <header className="dash-header" style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--ink-2)', marginBottom: 12, fontFamily: B, textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>
             <span style={{ width: 18, height: 1, background: 'var(--ink-2)' }} />
@@ -61,7 +68,7 @@ export default async function DashboardPage() {
 
       {lists.length === 0 ? (
         /* Empty state */
-        <div style={{ padding: '0 48px' }}>
+        <div className="dash-content" style={{ padding: '0 48px' }}>
           <div style={{
             textAlign: 'center', padding: '64px 32px', borderRadius: 28,
             background: 'var(--paper)', boxShadow: 'var(--shadow-1)',
@@ -86,8 +93,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div style={{ padding: '8px 48px' }}>
-          <div style={{
+        <div className="dash-content" style={{ padding: '8px 48px' }}>
+          <div className="dash-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: 28,

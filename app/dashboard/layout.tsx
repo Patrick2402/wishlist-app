@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <DashboardSidebar email={user.email ?? ''} />
-      <main style={{ flex: 1, height: '100vh', overflow: 'auto', position: 'relative' }}>
+      <main className="dash-main" style={{ flex: 1, height: '100vh', overflow: 'auto', position: 'relative' }}>
         {children}
       </main>
     </div>
