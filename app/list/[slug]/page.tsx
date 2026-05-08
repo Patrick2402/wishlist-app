@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { WishlistItem, OCCASIONS, PRIORITY_LABELS } from '@/types'
 import { formatPrice } from '@/lib/utils'
 import ReserveButton from './ReserveButton'
+import PublicListAuth from './PublicListAuth'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { GiftBox, Bow, Sparkle, FloatingDeco, SquigglyUnderline } from '@/components/decorations'
@@ -80,9 +81,12 @@ export default async function PublicWishlistPage({ params }: { params: Promise<{
           <span style={{ fontFamily: C, fontStyle: 'italic', fontSize: 22, color: 'var(--c1)' }}>list</span>
           <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--c1)', display: 'inline-block', marginBottom: 4, marginLeft: 2 }} />
         </Link>
-        <span style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>
-          {reservedCount}/{items.length} zarezerwowanych
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>
+            {reservedCount}/{items.length} zarezerwowanych
+          </span>
+          <PublicListAuth slug={slug} />
+        </div>
       </nav>
 
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 24px 80px' }}>

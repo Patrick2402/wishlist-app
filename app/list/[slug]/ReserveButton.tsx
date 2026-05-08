@@ -14,23 +14,46 @@ export default function ReserveButton({ item }: { item: WishlistItem }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!reserved) return
-    const checkMine = async () => {
-      const token = localStorage.getItem('wishlist_reserver_token')
-      if (!token) return
+    const init = async () => {
       const supabase = createClient()
-      const { data } = await supabase.from('reservations').select('reserver_token').eq('item_id', item.id).single()
-      setIsMyReservation(data?.reserver_token === token)
+      const token = localStorage.getItem('wishlist_reserver_token')
+      const { data: { user } } = await supabase.auth.getUser()
+
+      // Migrate any anonymous reservations to the logged-in account
+      if (user && token) {
+        await supabase.from('reservations')
+          .update({ user_id: user.id })
+          .eq('reserver_token', token)
+          .is('user_id', null)
+      }
+
+      if (!reserved) return
+
+      const { data } = await supabase
+        .from('reservations')
+        .select('reserver_token, user_id')
+        .eq('item_id', item.id)
+        .single()
+
+      if (!data) return
+      if (user && data.user_id === user.id) setIsMyReservation(true)
+      else if (token && data.reserver_token === token) setIsMyReservation(true)
     }
-    checkMine()
+    init()
   }, [item.id, reserved])
 
   async function handleReserve(e: React.MouseEvent<HTMLButtonElement>) {
     setLoading(true)
     const supabase = createClient()
     const token = getOrCreateReserverToken()
-    const { error: resError } = await supabase.from('reservations').insert({ item_id: item.id, reserver_token: token })
-    if (!resError) {
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { error } = await supabase.from('reservations').insert({
+      item_id: item.id,
+      reserver_token: token,
+      user_id: user?.id ?? null,
+    })
+    if (!error) {
       await supabase.from('wishlist_items').update({ is_reserved: true }).eq('id', item.id)
       setReserved(true)
       setIsMyReservation(true)
@@ -44,7 +67,13 @@ export default function ReserveButton({ item }: { item: WishlistItem }) {
     setLoading(true)
     const supabase = createClient()
     const token = localStorage.getItem('wishlist_reserver_token')
-    await supabase.from('reservations').delete().eq('item_id', item.id).eq('reserver_token', token)
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      await supabase.from('reservations').delete().eq('item_id', item.id).eq('user_id', user.id)
+    } else if (token) {
+      await supabase.from('reservations').delete().eq('item_id', item.id).eq('reserver_token', token)
+    }
     await supabase.from('wishlist_items').update({ is_reserved: false }).eq('id', item.id)
     setReserved(false)
     setIsMyReservation(false)
@@ -74,11 +103,11 @@ export default function ReserveButton({ item }: { item: WishlistItem }) {
         fontFamily: B, fontSize: 12, fontWeight: 600,
         transition: 'background .2s',
       }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--c1-soft)')}
-      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--c3-soft)')}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--c1-soft)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--c3-soft)' }}
       >
         {loading
-          ? <span style={{ animation: 'shimmer 1s ease infinite' }}>...</span>
+          ? '...'
           : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>Moje — anuluj</>
         }
       </button>
@@ -88,7 +117,7 @@ export default function ReserveButton({ item }: { item: WishlistItem }) {
   return (
     <button onClick={handleReserve} disabled={loading} className="btn btn-pop" style={{ fontSize: 12, padding: '8px 14px', borderRadius: 999, gap: 6 }}>
       {loading
-        ? <span style={{ animation: 'shimmer 1s ease infinite' }}>...</span>
+        ? '...'
         : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Rezerwuję</>
       }
     </button>
