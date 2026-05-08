@@ -18,18 +18,21 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(false)
+  const [fetchFailed, setFetchFailed] = useState(false)
   const [error, setError] = useState('')
   const fetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   async function fetchOgData(rawUrl: string) {
     if (!rawUrl.startsWith('http')) return
     setFetching(true)
+    setFetchFailed(false)
     try {
       const res = await fetch(`/api/fetch-og?url=${encodeURIComponent(rawUrl)}`)
       const data = await res.json()
       if (data.image && !imageUrl) setImageUrl(data.image)
       if (data.title && !title) setTitle(data.title)
-    } catch {}
+      if (!data.image && !data.title) setFetchFailed(true)
+    } catch { setFetchFailed(true) }
     setFetching(false)
   }
 
@@ -88,7 +91,8 @@ export default function AddItemForm({ wishlistId, itemCount }: { wishlistId: str
       <div>
         <label style={{ display: 'block', fontFamily: B, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-2)', marginBottom: 6 }}>
           Link do produktu
-          {fetching && <span style={{ marginLeft: 8, color: 'var(--c2)', fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>Pobieranie danych…</span>}
+          {fetching && <span style={{ marginLeft: 8, color: 'var(--c2)', fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>Pobieranie…</span>}
+          {!fetching && fetchFailed && <span style={{ marginLeft: 8, color: 'var(--ink-2)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>Brak podglądu — wpisz ręcznie</span>}
         </label>
         <div style={{ position: 'relative' }}>
           <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg>
