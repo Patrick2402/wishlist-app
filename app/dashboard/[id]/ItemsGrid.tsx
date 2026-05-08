@@ -77,7 +77,7 @@ export default function ItemsGrid({ items, wishlistId }: { items: WishlistItem[]
       ) : (
         <div className="items-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
           gap: 16, marginBottom: 20,
         }}>
           {filtered.map((item, i) => (
