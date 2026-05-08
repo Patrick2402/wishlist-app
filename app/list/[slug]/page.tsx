@@ -66,6 +66,7 @@ export default async function PublicWishlistPage({ params }: { params: Promise<{
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      <style>{`.product-link { color: var(--ink-2); transition: color .15s; } .product-link:hover { color: var(--c1) !important; }`}</style>
       {/* Sticky nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
@@ -187,10 +188,7 @@ export default async function PublicWishlistPage({ params }: { params: Promise<{
                           </span>
                         )}
                         {item.url && (
-                          <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, transition: 'color .15s' }}
-                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c1)')}
-                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--ink-2)')}
-                          >
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="product-link" style={{ fontFamily: B, fontSize: 12, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
                             Zobacz produkt
                           </a>
