@@ -2,24 +2,24 @@
 
 /* ── Design Tokens (Confetti palette — default) ──────────────────────── */
 :root {
-  --bg:     #FAF6EE;
-  --bg-2:   #F0E9DA;
+  --bg:     #F7F1E5;
+  --bg-2:   #F1E8D5;
   --ink:    #1F1A14;
-  --ink-2:  #7A6A54;
-  --paper:  #FFFDF8;
+  --ink-2:  #6A5E4D;
+  --paper:  #FFFBF2;
   --line:   rgba(31,26,20,.10);
   --line-2: rgba(31,26,20,.16);
 
-  --c1:      #E07A5F;
-  --c2:      #D4A853;
-  --c3:      #81B29A;
-  --c4:      #F2CC8F;
-  --c5:      #9FC8E0;
-  --c1-soft: #F5DDD6;
-  --c2-soft: #F5E8C8;
-  --c3-soft: #D4F0DC;
-  --c4-soft: #FAF0CC;
-  --c5-soft: #D8E8F8;
+  --c1:      #FFB89C;
+  --c2:      #F4B7C8;
+  --c3:      #B8D4A8;
+  --c4:      #FFD970;
+  --c5:      #B8B4E8;
+  --c1-soft: #FFE3D6;
+  --c2-soft: #FBE0E7;
+  --c3-soft: #E0EBD5;
+  --c4-soft: #FFEFC2;
+  --c5-soft: #E1DFF4;
 
   --shadow-1: 0 2px 8px rgba(31,26,20,.08);
   --shadow-2: 0 8px 24px rgba(31,26,20,.12), 0 1px 4px rgba(31,26,20,.06);
@@ -242,6 +242,53 @@ body {
   opacity: .04;
   animation: grain 8s steps(1) infinite;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* ── Atmosphere blobs ─────────────────────────────────────────────────── */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.atmosphere::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: var(--c2-soft);
+  filter: blur(60px);
+  opacity: .55;
+}
+.atmosphere::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: var(--c5-soft);
+  filter: blur(60px);
+  opacity: .55;
+}
+
+/* ── Grain fixed overlay ──────────────────────────────────────────────── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .35;
+  mix-blend-mode: multiply;
+  animation: grain 8s steps(1) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────────────── */

@@ -49,7 +49,7 @@ export default async function DashboardPage() {
         }
       `}</style>
       {/* Header */}
-      <header className="dash-header" style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
+      <header className="dash-header" style={{ padding: '32px 48px 20px', display: 'flex', alignItems: 'flex-end', gap: 24, position: 'relative' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--ink-2)', marginBottom: 12, fontFamily: B, textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>
             <span style={{ width: 18, height: 1, background: 'var(--ink-2)' }} />
@@ -60,10 +60,6 @@ export default async function DashboardPage() {
             <SquigglyUnderline width={120} color="var(--c1)" style={{ position: 'absolute', bottom: -10, left: 108 }} />
           </h1>
         </div>
-        <Link href="/dashboard/new" className="btn btn-pop" style={{ fontSize: 14, padding: '12px 20px', whiteSpace: 'nowrap' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          Nowa lista
-        </Link>
       </header>
 
       {lists.length === 0 ? (

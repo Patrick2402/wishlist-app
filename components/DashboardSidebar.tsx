@@ -7,16 +7,49 @@ import { createClient } from '@/lib/supabase/client'
 const C = 'var(--font-serif)'
 const B = 'var(--font-sans)'
 
+type NavIconProps = { name: string; active: boolean }
+
+function NavIcon({ name, active }: NavIconProps) {
+  const c = active ? 'var(--ink)' : 'var(--ink-2)'
+  const sw = 1.7
+  switch (name) {
+    case 'lists':
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="3"/>
+          <path d="M8 8h8M8 12h8M8 16h5"/>
+        </svg>
+      )
+    case 'compass':
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M15.5 8.5 13 13l-4.5 2.5L11 11Z" fill={active ? 'var(--c1)' : 'none'}/>
+        </svg>
+      )
+    case 'activity':
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 12h4l3-7 4 14 3-7h4"/>
+        </svg>
+      )
+    case 'user':
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M3 21c1.5-4.5 5-7 9-7s7.5 2.5 9 7"/>
+        </svg>
+      )
+    default:
+      return null
+  }
+}
+
 const NAV = [
-  {
-    id: 'lists', label: 'Listy', href: '/dashboard',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--c1)' : 'var(--ink-2)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="3" width="16" height="18" rx="3"/>
-        <path d="M8 8h8M8 12h8M8 16h5"/>
-      </svg>
-    ),
-  },
+  { id: 'lists',      label: 'Listy',      href: '/dashboard',             icon: 'lists' },
+  { id: 'inspiracje', label: 'Inspiracje', href: '/dashboard/inspiracje',  icon: 'compass' },
+  { id: 'aktywnosc',  label: 'Aktywność',  href: '/dashboard/aktywnosc',   icon: 'activity' },
+  { id: 'profil',     label: 'Profil',     href: '/dashboard/profil',      icon: 'user' },
 ]
 
 export default function DashboardSidebar({ email }: { email: string }) {
@@ -40,6 +73,11 @@ export default function DashboardSidebar({ email }: { email: string }) {
           .dash-bottom-nav { display: flex !important; }
           .dash-main { padding-bottom: 72px !important; }
         }
+        .add-wish-btn:hover {
+          transform: translateY(-2px) rotate(-1deg) !important;
+          box-shadow: 0 6px 0 rgba(31,26,20,.22), 0 16px 36px rgba(31,26,20,.22) !important;
+        }
+        .add-wish-btn { transition: transform .25s var(--spring), box-shadow .25s var(--smooth); }
       `}</style>
 
       {/* Desktop sidebar */}
@@ -69,25 +107,35 @@ export default function DashboardSidebar({ email }: { email: string }) {
               transition: 'background .2s, transform .2s var(--spring)',
               transform: active ? 'translateX(2px)' : 'none',
             }}
-            onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(31,26,20,.04)' }}
+            onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.5)' }}
             onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
             >
-              {n.icon(active)}
+              <NavIcon name={n.icon} active={active} />
               <span>{n.label}</span>
               {active && <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: 'var(--c1)' }} />}
             </Link>
           )
         })}
 
-        <Link href="/dashboard/new" className="btn" style={{
-          marginTop: 8, justifyContent: 'center', fontSize: 13, padding: '12px 16px',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          Nowa lista
-        </Link>
-
         <div style={{ flex: 1 }} />
 
+        {/* Dodaj życzenie — bottom CTA */}
+        <Link href="/dashboard/new" className="add-wish-btn" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '14px 16px', borderRadius: 16,
+          background: 'var(--ink)', color: 'var(--paper)',
+          fontFamily: B, fontWeight: 600, fontSize: 14,
+          textDecoration: 'none',
+          boxShadow: '0 4px 0 rgba(31,26,20,.18), 0 10px 24px rgba(31,26,20,.18)',
+          marginBottom: 10,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Dodaj życzenie
+        </Link>
+
+        {/* User pill */}
         <div style={{ padding: '8px 12px', borderRadius: 999, background: 'var(--bg)', boxShadow: 'inset 0 0 0 1px var(--line)', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 30, height: 30, borderRadius: '50%', background: 'var(--c1)',
@@ -111,53 +159,24 @@ export default function DashboardSidebar({ email }: { email: string }) {
         display: 'none',
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
         height: 64,
-        background: 'rgba(255,253,248,.92)', backdropFilter: 'blur(16px)',
+        background: 'rgba(255,251,242,.92)', backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderTop: '1px solid var(--line)',
         alignItems: 'center', justifyContent: 'space-around',
-        padding: '0 8px',
+        padding: '0 4px',
       }}>
-        {/* Listy */}
-        <Link href="/dashboard" style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          textDecoration: 'none', flex: 1, padding: '8px 0',
-        }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isActive('/dashboard') ? 'var(--c1)' : 'var(--ink-2)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="3" width="16" height="18" rx="3"/>
-            <path d="M8 8h8M8 12h8M8 16h5"/>
-          </svg>
-          <span style={{ fontFamily: B, fontSize: 10, fontWeight: 600, color: isActive('/dashboard') ? 'var(--c1)' : 'var(--ink-2)' }}>Listy</span>
-        </Link>
-
-        {/* Nowa lista — center CTA */}
-        <Link href="/dashboard/new" style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          textDecoration: 'none', flex: 1, padding: '4px 0',
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: '50%',
-            background: 'var(--ink)', color: 'var(--paper)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(31,26,20,.25)',
-            marginTop: -16,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-          <span style={{ fontFamily: B, fontSize: 10, fontWeight: 600, color: 'var(--ink-2)' }}>Nowa</span>
-        </Link>
-
-        {/* Wyloguj */}
-        <button onClick={handleSignOut} style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          background: 'none', border: 'none', cursor: 'pointer', flex: 1, padding: '8px 0',
-        }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: '50%', background: 'var(--c1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: C, fontStyle: 'italic', fontSize: 14, color: 'var(--paper)',
-          }}>{initial}</div>
-          <span style={{ fontFamily: B, fontSize: 10, fontWeight: 600, color: 'var(--ink-2)' }}>Konto</span>
-        </button>
+        {NAV.map(n => {
+          const active = isActive(n.href)
+          return (
+            <Link key={n.id} href={n.href} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+              textDecoration: 'none', flex: 1, padding: '8px 0',
+            }}>
+              <NavIcon name={n.icon} active={active} />
+              <span style={{ fontFamily: B, fontSize: 10, fontWeight: 600, color: active ? 'var(--c1)' : 'var(--ink-2)' }}>{n.label}</span>
+            </Link>
+          )
+        })}
       </nav>
     </>
   )
