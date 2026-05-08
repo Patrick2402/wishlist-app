@@ -3,8 +3,7 @@ export const runtime = 'edge'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { WishlistItem, OCCASIONS } from '@/types'
-import AddItemForm from './AddItemForm'
-import ItemCard from './ItemCard'
+import ItemsGrid from './ItemsGrid'
 import ShareButton from './ShareButton'
 import Link from 'next/link'
 import { SquigglyUnderline, GiftBox, FloatingDeco, Bow } from '@/components/decorations'
@@ -68,8 +67,12 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
             <p style={{ fontFamily: B, color: 'var(--ink-2)', fontSize: 14, marginTop: 8 }}>{wishlist.description}</p>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <ShareButton slug={wishlist.slug} />
+          <a href="#add-item" className="btn btn-pop" style={{ fontSize: 13, padding: '10px 18px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Dodaj
+          </a>
         </div>
       </header>
 
@@ -96,28 +99,8 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      {/* Items */}
-      <div style={{ padding: '0 48px' }}>
-        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'baseline', gap: 8 }}>
-          <h2 style={{ fontFamily: B, fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '.1em', margin: 0 }}>
-            Produkty
-          </h2>
-          <span style={{ fontFamily: B, fontSize: 12, color: 'var(--ink-2)', background: 'var(--bg-2)', padding: '2px 8px', borderRadius: 999 }}>{items.length}</span>
-        </div>
-
-        {items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: 20, border: '2px dashed var(--line-2)', background: 'transparent', marginBottom: 16 }}>
-            <p style={{ fontFamily: B, color: 'var(--ink-2)', fontSize: 14 }}>Brak produktów. Dodaj pierwszy poniżej!</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-            {items.map((item, i) => (
-              <ItemCard key={item.id} item={item} wishlistId={id} index={i} />
-            ))}
-          </div>
-        )}
-
-        <AddItemForm wishlistId={id} itemCount={items.length} />
+      <div id="add-item">
+        <ItemsGrid items={items} wishlistId={id} />
       </div>
     </div>
   )
