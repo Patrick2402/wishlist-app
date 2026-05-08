@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { WishlistItem, OCCASIONS } from '@/types'
 import ItemsGrid from './ItemsGrid'
 import ShareButton from './ShareButton'
+import ListDetailShell from './ListDetailShell'
 import Link from 'next/link'
 import { SquigglyUnderline, GiftBox, FloatingDeco, Bow } from '@/components/decorations'
 
@@ -69,10 +70,7 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <ShareButton slug={wishlist.slug} />
-          <a href="#add-item" className="btn btn-pop" style={{ fontSize: 13, padding: '10px 18px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            Dodaj
-          </a>
+          <ListDetailShell wishlistId={id} />
         </div>
       </header>
 
@@ -99,9 +97,7 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <div id="add-item">
-        <ItemsGrid items={items} wishlistId={id} />
-      </div>
+      <ItemsGrid items={items} wishlistId={id} />
     </div>
   )
 }
