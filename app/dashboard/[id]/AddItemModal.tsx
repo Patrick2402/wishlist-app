@@ -110,6 +110,27 @@ export default function AddItemModal({
 
   return (
     <>
+      <style>{`
+        .slide-panel {
+          position: fixed; top: 16px; right: 16px; bottom: 16px; width: 520px;
+          background: var(--paper); border-radius: 28px;
+          box-shadow: 0 32px 80px rgba(31,26,20,.22), inset 0 0 0 .5px rgba(255,255,255,.6);
+          z-index: 101; overflow: hidden; display: flex; flex-direction: column;
+          transition: transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+        }
+        @media (max-width: 600px) {
+          .slide-panel { top: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; border-radius: 0 !important; }
+        }
+        .modal-field { width: 100%; border: 0; font-family: var(--font-sans); color: var(--ink); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); box-sizing: border-box; }
+        .modal-field:focus { box-shadow: inset 0 0 0 1.5px var(--c1) !important; outline: none !important; }
+        .modal-chip-btn { transition: background .15s, box-shadow .15s; }
+        .modal-chip-btn:hover { background: var(--bg-2) !important; }
+        .priority-row { display: flex; gap: 8px; }
+        @media (max-width: 380px) {
+          .priority-row { flex-direction: column; }
+        }
+      `}</style>
+
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -123,24 +144,14 @@ export default function AddItemModal({
       />
 
       {/* Panel */}
-      <div style={{
-        position: 'fixed', top: 16, right: 16, bottom: 16, width: 520,
-        background: 'var(--paper)', borderRadius: 28,
-        boxShadow: '0 32px 80px rgba(31,26,20,.22), inset 0 0 0 .5px rgba(255,255,255,.6)',
-        transform: open ? 'translateX(0) scale(1)' : 'translateX(560px) scale(.96)',
-        opacity: open ? 1 : 0,
-        transition: 'transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s ease',
-        zIndex: 101, overflow: 'hidden',
-        display: 'flex', flexDirection: 'column',
-      }}>
-        <style>{`
-          @media (max-width: 600px) {
-            .add-modal-panel { top: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; border-radius: 0 !important; }
-          }
-          .modal-field:focus { box-shadow: inset 0 0 0 1.5px var(--c1) !important; outline: none !important; }
-          .modal-chip-btn { transition: background .15s, box-shadow .15s; }
-          .modal-chip-btn:hover { background: var(--bg-2) !important; }
-        `}</style>
+      <div
+        className="slide-panel"
+        style={{
+          transform: open ? 'translateX(0) scale(1)' : 'translateX(calc(100% + 40px)) scale(.96)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+      >
 
         {/* Header */}
         <div style={{ padding: '28px 32px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>

@@ -74,6 +74,19 @@ export default function ItemDetailModal({
 
   return (
     <>
+      <style>{`
+        .slide-panel {
+          position: fixed; top: 16px; right: 16px; bottom: 16px; width: 520px;
+          background: var(--paper); border-radius: 28px;
+          box-shadow: 0 32px 80px rgba(31,26,20,.22), inset 0 0 0 .5px rgba(255,255,255,.6);
+          z-index: 101; overflow: hidden; display: flex; flex-direction: column;
+          transition: transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+        }
+        @media (max-width: 600px) {
+          .slide-panel { top: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; border-radius: 0 !important; }
+        }
+      `}</style>
+
       {/* Backdrop */}
       <div onClick={onClose} style={{
         position: 'fixed', inset: 0,
@@ -84,16 +97,14 @@ export default function ItemDetailModal({
       }} />
 
       {/* Panel */}
-      <div style={{
-        position: 'fixed', top: 16, right: 16, bottom: 16, width: 520,
-        background: 'var(--paper)', borderRadius: 28,
-        boxShadow: '0 32px 80px rgba(31,26,20,.22), inset 0 0 0 .5px rgba(255,255,255,.6)',
-        transform: open ? 'translateX(0) scale(1)' : 'translateX(560px) scale(.96)',
-        opacity: open ? 1 : 0,
-        transition: 'transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s ease',
-        zIndex: 101, overflow: 'hidden',
-        display: 'flex', flexDirection: 'column',
-      }}>
+      <div
+        className="slide-panel"
+        style={{
+          transform: open ? 'translateX(0) scale(1)' : 'translateX(560px) scale(.96)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+      >
 
         {/* Image area */}
         <div style={{

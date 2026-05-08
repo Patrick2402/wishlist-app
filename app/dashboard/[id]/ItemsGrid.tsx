@@ -25,7 +25,7 @@ export default function ItemsGrid({ items, wishlistId }: { items: WishlistItem[]
   })
 
   return (
-    <div style={{ padding: '0 48px' }}>
+    <div className="items-content" style={{ padding: '0 48px' }}>
       <style>{`
         @media (max-width: 680px) {
           .items-toolbar { flex-wrap: wrap; }

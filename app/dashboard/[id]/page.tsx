@@ -40,8 +40,18 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
 
   return (
     <div style={{ padding: '0 0 80px' }}>
+      <style>{`
+        .detail-breadcrumb { padding: 24px 48px 0 !important; }
+        .detail-header { padding: 16px 48px 20px !important; }
+        .detail-stats { margin: 0 48px 28px !important; }
+        @media (max-width: 680px) {
+          .detail-breadcrumb { padding: 16px 20px 0 !important; }
+          .detail-header { padding: 12px 20px 16px !important; flex-direction: column !important; align-items: flex-start !important; }
+          .detail-stats { margin: 0 20px 20px !important; }
+        }
+      `}</style>
       {/* Header */}
-      <div style={{ padding: '24px 48px 0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink-2)', fontFamily: B }}>
+      <div className="detail-breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink-2)', fontFamily: B }}>
         <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Listy
@@ -50,7 +60,7 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
         <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{wishlist.title}</span>
       </div>
 
-      <header style={{ padding: '16px 48px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
+      <header className="detail-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative' }}>
         <div style={{ position: 'relative' }}>
           {occasionObj && (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--ink-2)', marginBottom: 10, fontFamily: B, textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>
@@ -75,7 +85,7 @@ export default async function EditWishlistPage({ params }: { params: Promise<{ i
       </header>
 
       {/* Stats strip */}
-      <div style={{ margin: '0 48px 28px', padding: '18px 24px', borderRadius: 18, background: 'var(--paper)', boxShadow: 'inset 0 0 0 1px var(--line)', display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
+      <div className="detail-stats" style={{ margin: '0 48px 28px', padding: '18px 24px', borderRadius: 18, background: 'var(--paper)', boxShadow: 'inset 0 0 0 1px var(--line)', display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontFamily: B, fontSize: 11, color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '.1em', fontWeight: 600 }}>Życzeń</div>
           <div className="display" style={{ fontSize: 32 }}>{items.length}</div>
